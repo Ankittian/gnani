@@ -9,17 +9,17 @@
 | Phase | Tasks | Done | Status |
 |---|---|---|---|
 | 0 Setup & API truth | 3 | 3 | ✅ |
-| 1 Pure foundations (TDD) | 9 | 0 | ⏳ |
-| 2 Server routes | 6 | 0 | ⬜ |
-| 3 Design system & shell | 4 | 0 | ⬜ |
-| 4 Voice loop + M1 Khata ⭐ | 8 | 0 | ⬜ |
-| 5 M2 Reminders + clone | 3 | 0 | ⬜ |
-| 6 M3 Stock & reorder | 3 | 0 | ⬜ |
-| 7 M4 Voice orders | 3 | 0 | ⬜ |
-| 8 M5 Aaj ka Hisaab | 1 | 0 | ⬜ |
-| 9 Onboarding & settings | 2 | 0 | ⬜ |
-| 10 QA, eval, ship | 6 | 0 | ⬜ |
-| **Total** | **48** | **0** | |
+| 1 Pure foundations (TDD) | 9 | 9 | ✅ |
+| 2 Server routes | 6 | 6 | ✅ |
+| 3 Design system & shell | 4 | 4 | ✅ |
+| 4 Voice loop + M1 Khata ⭐ | 8 | 7 | ⏳ live check on phone |
+| 5 M2 Reminders + clone | 3 | 3 | ✅ |
+| 6 M3 Stock & reorder | 3 | 3 | ✅ |
+| 7 M4 Voice orders | 3 | 3 | ✅ |
+| 8 M5 Aaj ka Hisaab | 1 | 1 | ✅ |
+| 9 Onboarding & settings | 2 | 2 | ✅ |
+| 10 QA, eval, ship | 6 | 1 | ⏳ |
+| **Total** | **48** | **42** | |
 
 Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂️ cut
 
@@ -50,65 +50,65 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 - Gemini `@google/genai` v3: `generateContent({config:{responseMimeType:'application/json', responseJsonSchema, thinkingConfig:{thinkingLevel: ThinkingLevel.LOW}}})`.
 
 ## Phase 1 — Pure foundations (TDD)
-- [ ] 1.1 WAV encoder + resampler
-- [ ] 1.2 Silence-aware chunker
-- [ ] 1.3 Money + numwords (hi/en)
-- [ ] 1.4 Languages meta + i18n strings
-- [ ] 1.5 Fuzzy matcher + keyterms
-- [ ] 1.6 Action/Compose zod schema + JSON Schema
-- [ ] 1.7 Dexie schema + repo (commit/undo)
-- [ ] 1.8 Domain reducers (ledger, stock, orders, summary)
-- [ ] 1.9 Synthetic demo seed
+- [x] 1.1 WAV encoder + resampler
+- [x] 1.2 Silence-aware chunker
+- [x] 1.3 Money + numwords (hi/en)
+- [x] 1.4 Languages meta + i18n strings
+- [x] 1.5 Fuzzy matcher + keyterms
+- [x] 1.6 Action/Compose zod schema + JSON Schema
+- [x] 1.7 Dexie schema + repo (commit/undo)
+- [x] 1.8 Domain reducers (ledger, stock, orders, summary)
+- [x] 1.9 Synthetic demo seed
 
 ## Phase 2 — Server routes
-- [ ] 2.1 Gnani client + error mapping
-- [ ] 2.2 Serial queue + backoff
-- [ ] 2.3 Gemini client + prompts
-- [ ] 2.4 Caps, mock fixtures, http helpers
-- [ ] 2.5 Routes: health, stt, understand, compose
-- [ ] 2.6 Routes: tts, clone, tts-clone
+- [x] 2.1 Gnani client + error mapping
+- [x] 2.2 Serial queue + backoff
+- [x] 2.3 Gemini client + prompts
+- [x] 2.4 Caps, mock fixtures, http helpers
+- [x] 2.5 Routes: health, stt, understand, compose
+- [x] 2.6 Routes: tts, clone, tts-clone
 
 ## Phase 3 — Design system & shell
-- [ ] 3.1 Theme tokens + Baloo fonts
-- [ ] 3.2 DostOrb (5 states)
-- [ ] 3.3 AppShell, BottomNav, StatChip, ModuleTile, EmptyState
-- [ ] 3.4 PWA manifest + icons + Toaster
+- [x] 3.1 Theme tokens + Baloo fonts
+- [x] 3.2 DostOrb (5 states)
+- [x] 3.3 AppShell, BottomNav, StatChip, ModuleTile, EmptyState
+- [x] 3.4 PWA manifest + icons + Toaster
 
 ## Phase 4 — Voice loop + M1 Khata ⭐ (demo-critical)
-- [ ] 4.1 Recorder (worklet, level, 25 s auto-stop)
-- [ ] 4.2 Browser API client + TTS cache + usage meter
-- [ ] 4.3 useSpeak + useVoiceCommand state machine
-- [ ] 4.4 VoiceSheet, MicButton, TranscriptView, text fallback
-- [ ] 4.5 ActionCard, ClarifyOptions, Undo
-- [ ] 4.6 Home page
-- [ ] 4.7 Khata list + customer detail
+- [x] 4.1 Recorder (worklet, level, 25 s auto-stop)
+- [x] 4.2 Browser API client + TTS cache + usage meter
+- [x] 4.3 useSpeak + useVoiceCommand state machine
+- [x] 4.4 VoiceSheet, MicButton, TranscriptView, text fallback
+- [x] 4.5 ActionCard, ClarifyOptions, Undo
+- [x] 4.6 Home page
+- [x] 4.7 Khata list + customer detail
 - [ ] 4.8 Live check M1 (5 utterances, 5 languages)
 
 ## Phase 5 — M2 Reminders + voice clone
-- [ ] 5.1 CloneRecorder → /api/clone
-- [ ] 5.2 ReminderSheet (customer language, my voice / assistant)
-- [ ] 5.3 ShareButton + AudioPlayer
+- [x] 5.1 CloneRecorder → /api/clone
+- [x] 5.2 ReminderSheet (customer language, my voice / assistant)
+- [x] 5.3 ShareButton + AudioPlayer
 
 ## Phase 6 — M3 Stock & reorder
-- [ ] 6.1 Stock page + ProductCard
-- [ ] 6.2 Reorder page + SupplierOrderCard (supplier-language voice note)
-- [ ] 6.3 Wire stock_update / query_stock / cash_sale
+- [x] 6.1 Stock page + ProductCard
+- [x] 6.2 Reorder page + SupplierOrderCard (supplier-language voice note)
+- [x] 6.3 Wire stock_update / query_stock / cash_sale
 
 ## Phase 7 — M4 Voice orders
-- [ ] 7.1 UploadOrder + long-audio chunked transcription
-- [ ] 7.2 Orders list/detail + PackingChecklist
-- [ ] 7.3 Noisy sample fixtures (make_fixtures.py)
+- [x] 7.1 UploadOrder + long-audio chunked transcription
+- [x] 7.2 Orders list/detail + PackingChecklist
+- [x] 7.3 Noisy sample fixtures (make_fixtures.py)
 
 ## Phase 8 — M5 Aaj ka Hisaab
-- [ ] 8.1 Hisaab page (CountUp, WeekBars, Suno)
+- [x] 8.1 Hisaab page (CountUp, WeekBars, Suno)
 
 ## Phase 9 — Onboarding & settings
-- [ ] 9.1 Onboarding (4 steps)
-- [ ] 9.2 Settings
+- [x] 9.1 Onboarding (4 steps)
+- [x] 9.2 Settings
 
 ## Phase 10 — QA, eval, ship
 - [ ] 10.1 Eval over 30 fixtures (clean + noisy)
-- [ ] 10.2 Vitest + build + lint green
+- [x] 10.2 Vitest + build + lint green
 - [ ] 10.3 Browser QA (mobile + desktop)
 - [ ] 10.4 React best-practices + JS security audit
 - [ ] 10.5 Deploy to Vercel
@@ -172,4 +172,25 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 ## Session log
 | Time (IST) | What happened | Commit |
 |---|---|---|
-| 2026-11-08 | Planning complete; repo + .venv initialized | (initial) |
+| 2026-11-08 | Planning complete; repo + .venv initialized | 5ed03b9 |
+| 2026-11-08 | Phase 0 done: Gnani STT/TTS/clone + Gemini verified live | deb210d |
+| 2026-11-08 | Phases 1-9 built: 170 tests green, `next build` green. Live API chain verified via dev server: noisy hi/kn/long Hinglish STT correct; Gemini order + udhaar extraction correct; /api/tts + /api/tts-clone OK | a5cbe44 |
+
+## Live verification log (2026-11-08, through the Next.js API)
+| Check | Result |
+|---|---|
+| STT noisy Hindi order (SNR 5 dB), keyterms Meena/Maggi/Parle-G | exact, 0.70 s |
+| STT noisy Kannada order (SNR 5 dB) | exact, 0.44 s |
+| STT 22 s Hinglish long order | exact, 0.60 s |
+| understand(order) → items matched to catalog ids, note captured | ✅ conf 1.0 |
+| understand(command) "Sharma ji ne 2 kilo chawal aur Maggi, udhaar" | add_credit, alias→Ramesh, ₹134 computed from prices, `{balance}` token present |
+| /api/tts hi-IN Lakshmi with ₹ digits | 200 audio/mpeg |
+| /api/tts-clone kn-IN | 200 audio/mpeg, no fallback |
+
+## Remaining
+- [ ] 4.8 / manual: test mic flow on a real phone (Chrome Android) — needs HTTPS (Vercel) for mic
+- [ ] 10.1 eval over 30 utterances (clean + noisy)
+- [ ] 10.3 browser QA pass (mobile viewport screenshots)
+- [ ] 10.4 react best-practices + JS security audit
+- [ ] 10.5 deploy to Vercel (needs user login)
+- [ ] 10.6 README write-up

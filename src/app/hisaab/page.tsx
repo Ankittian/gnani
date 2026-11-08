@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { animate } from "motion/react";
-import { Loader2, Play, Square } from "lucide-react";
+import { Loader2, Play, Square } from "@/components/common/icons";
 import { toast } from "sonner";
 import { Avatar, Card, PageHeader, StatChip } from "@/components/common/ui";
 import { DostOrb } from "@/components/orb/DostOrb";
@@ -126,10 +126,10 @@ function HisaabInner() {
       </div>
 
       <div className="mx-4 mt-4 grid grid-cols-2 gap-3">
-        <StatChip emoji="🧾" label={tr("statSales")} value={formatINR(s.salesPaise)} tone="leaf" />
-        <StatChip emoji="📒" label={tr("statCreditGiven")} value={formatINR(s.creditGivenPaise)} tone="chili" />
-        <StatChip emoji="💰" label={tr("statCollected")} value={formatINR(s.paymentsPaise)} tone="leaf" />
-        <StatChip emoji="🛵" label="Delivered" value={String(s.ordersDelivered)} tone="indigo" />
+        <StatChip icon="sales" label={tr("statSales")} value={formatINR(s.salesPaise)} tone="leaf" />
+        <StatChip icon="credit" label={tr("statCreditGiven")} value={formatINR(s.creditGivenPaise)} tone="chili" />
+        <StatChip icon="collected" label={tr("statCollected")} value={formatINR(s.paymentsPaise)} tone="leaf" />
+        <StatChip icon="orders" label="Delivered" value={String(s.ordersDelivered)} tone="indigo" />
       </div>
 
       <Card className="mx-4 mt-3 text-center">

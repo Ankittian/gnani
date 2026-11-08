@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "@/components/common/icons";
 import { EmptyState, PageHeader } from "@/components/common/ui";
 import { useVoice } from "@/components/voice/VoiceProvider";
 import { useShop } from "@/hooks/useShop";
@@ -89,7 +89,7 @@ export default function StockPage() {
       </button>
 
       {products && list.length === 0 ? (
-        <EmptyState emoji="🎉" title="Sab stock mein hai!" />
+        <EmptyState icon="celebrate" tone="leaf" title="Sab stock mein hai!" />
       ) : (
         <ul className="mx-4 mt-3 grid grid-cols-2 gap-3">
           {list.map((p) => (

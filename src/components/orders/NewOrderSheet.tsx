@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { FileAudio, Mic, Square, X } from "lucide-react";
+import { FileAudio, Mic, Square, X } from "@/components/common/icons";
 import { DostOrb } from "@/components/orb/DostOrb";
 import { useLongTranscribe } from "@/hooks/useLongTranscribe";
 import { useRecorder } from "@/hooks/useRecorder";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Mic, Square } from "lucide-react";
+import { Loader2, Mic, Square } from "@/components/common/icons";
 import { toast } from "sonner";
 import { DostOrb } from "@/components/orb/DostOrb";
 import { useRecorder } from "@/hooks/useRecorder";

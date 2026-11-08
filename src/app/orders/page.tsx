@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/common/icons";
 import { EmptyState, PageHeader, timeAgo } from "@/components/common/ui";
 import { NewOrderSheet } from "@/components/orders/NewOrderSheet";
 import { useShop } from "@/hooks/useShop";
@@ -11,10 +11,10 @@ import { getDb } from "@/lib/db/schema";
 import { LANGUAGES } from "@/lib/i18n/languages";
 import type { OrderStatus } from "@/lib/types";
 
-export const STATUS_STYLE: Record<OrderStatus, { label: string; cls: string; emoji: string }> = {
-  new: { label: "Naya", cls: "bg-chili-soft text-chili", emoji: "🆕" },
-  packed: { label: "Packed", cls: "bg-brand-soft text-brand-ink", emoji: "📦" },
-  delivered: { label: "Delivered", cls: "bg-leaf-soft text-leaf", emoji: "✅" },
+export const STATUS_STYLE: Record<OrderStatus, { label: string; cls: string}> = {
+  new: { label: "Naya", cls: "bg-chili-soft text-chili" },
+  packed: { label: "Packed", cls: "bg-brand-soft text-brand-ink" },
+  delivered: { label: "Delivered", cls: "bg-leaf-soft text-leaf" },
 };
 
 export default function OrdersPage() {
@@ -27,7 +27,7 @@ export default function OrdersPage() {
   return (
     <div>
       <PageHeader
-        title={`🛵 ${tr("modOrders")}`}
+        title={tr("modOrders")}
         subtitle={`${orders?.filter((o) => o.status !== "delivered").length ?? 0} pending`}
         back="/more"
         right={
@@ -38,7 +38,7 @@ export default function OrdersPage() {
       />
 
       {orders && orders.length === 0 ? (
-        <EmptyState emoji="🛵" title="Koi order nahi" hint="Customer ka voice note daalein — packing list ban jaayegi." />
+        <EmptyState icon="orders" tone="indigo" title="Koi order nahi" hint="Customer ka voice note daalein — packing list ban jaayegi." />
       ) : (
         <ul className="mx-4 mt-2 space-y-3">
           {(orders ?? []).map((o) => {
@@ -50,7 +50,7 @@ export default function OrdersPage() {
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate text-lg font-extrabold">{o.customerName ?? "Customer"}</p>
                     <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-bold ${st.cls}`}>
-                      {st.emoji} {st.label}
+                      <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-current align-middle" aria-hidden />{st.label}
                     </span>
                   </div>
                   <p className="mt-1 truncate text-sm text-muted">{o.items.map((i) => i.name).join(", ")}</p>

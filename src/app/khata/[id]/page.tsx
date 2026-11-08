@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "motion/react";
-import { Bell, HandCoins, Mic } from "lucide-react";
+import { Bell, HandCoins, Mic } from "@/components/common/icons";
 import { Avatar, BalancePill, Card, EmptyState, PageHeader } from "@/components/common/ui";
 import { VoiceNoteComposer } from "@/components/common/VoiceNoteComposer";
 import { useVoice } from "@/components/voice/VoiceProvider";
@@ -59,7 +59,7 @@ export default function CustomerPage() {
   }, [data?.entries]);
 
   if (data === undefined || !shop) return null;
-  if (!data.customer) return <EmptyState emoji="🤷" title="Customer nahi mila" />;
+  if (!data.customer) return <EmptyState icon="notFound" tone="muted" title="Customer nahi mila" />;
   const c = data.customer;
 
   return (
@@ -96,7 +96,7 @@ export default function CustomerPage() {
       </Card>
 
       {groups.length === 0 ? (
-        <EmptyState emoji="🧾" title="Koi entry nahi" />
+        <EmptyState icon="sales" tone="muted" title="Koi entry nahi" />
       ) : (
         <div className="mx-4 mt-5 space-y-4">
           {groups.map(([day, entries]) => (

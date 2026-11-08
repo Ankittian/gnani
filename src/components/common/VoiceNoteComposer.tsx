@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Loader2, Pause, Play, RefreshCw, Share2, X } from "lucide-react";
+import { Loader2, Pause, Play, RefreshCw, Share2, X } from "@/components/common/icons";
 import { toast } from "sonner";
 import { DostOrb } from "@/components/orb/DostOrb";
 import * as api from "@/lib/api/client";

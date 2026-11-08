@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, IconTile, type IconKey, type Tone } from "@/components/common/icons";
 import { formatINR } from "@/lib/domain/money";
 
 export function PageHeader({ title, subtitle, back, right }: { title: string; subtitle?: string | null; back?: string; right?: ReactNode }) {
   return (
     <header className="flex items-center gap-2 px-4 pb-2 pt-5">
       {back && (
-        <Link href={back} aria-label="Back" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5">
+        <Link href={back} aria-label="Back" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-brand-soft">
           <ChevronLeft className="h-7 w-7" />
         </Link>
       )}
@@ -48,46 +48,42 @@ export function BalancePill({ balance, size = "md" }: { balance: number; size?: 
   return <span className={`rounded-full bg-leaf-soft font-extrabold text-leaf ${cls}`}>✓ 0</span>;
 }
 
-export function StatChip({ emoji, label, value, tone }: { emoji: string; label: string; value: string; tone: "leaf" | "chili" | "brand" | "indigo" }) {
+export function StatChip({ icon, label, value, tone }: { icon: IconKey; label: string; value: string; tone: Exclude<Tone, "muted"> }) {
   const toneCls = { leaf: "text-leaf", chili: "text-chili", brand: "text-brand-strong", indigo: "text-indigo" }[tone];
   return (
-    <div className="rounded-card border border-line bg-card p-3 shadow-sticker">
-      <div className="flex items-center gap-1.5 text-sm font-semibold text-muted">
-        <span aria-hidden>{emoji}</span>
+    <div className="rounded-card border border-line bg-card p-3.5 shadow-sticker">
+      <div className="flex items-center gap-2 text-sm font-semibold text-muted">
+        <IconTile icon={icon} tone={tone} size="sm" />
         <span className="truncate">{label}</span>
       </div>
-      <div className={`tabular mt-1 text-2xl font-extrabold ${toneCls}`}>{value}</div>
+      <div className={`tabular mt-2 text-2xl font-extrabold ${toneCls}`}>{value}</div>
     </div>
   );
 }
 
-export function ModuleTile({ href, emoji, label, sub, badge }: { href: string; emoji: string; label: string; sub?: string | null; badge?: number }) {
+export function ModuleTile({ href, icon, tone = "brand", label, sub, badge }: { href: string; icon: IconKey; tone?: Tone; label: string; sub?: string | null; badge?: number }) {
   return (
     <Link
       href={href}
-      className="relative flex min-h-28 flex-col justify-between rounded-card border border-line bg-card p-4 shadow-sticker transition-transform active:scale-[0.98]"
+      className="relative flex min-h-32 flex-col justify-between gap-3 rounded-card border border-line bg-card p-4 shadow-sticker transition-all hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo/40"
     >
-      <span className="text-4xl" aria-hidden>
-        {emoji}
-      </span>
+      <IconTile icon={icon} tone={tone} size="lg" />
       <span>
         <span className="block text-lg font-extrabold leading-tight">{label}</span>
         {sub && <span className="block text-xs font-semibold text-muted">{sub}</span>}
       </span>
       {badge ? (
-        <span className="absolute right-3 top-3 min-w-7 rounded-full bg-chili px-2 py-0.5 text-center text-sm font-extrabold text-white">{badge}</span>
+        <span className="absolute right-3 top-3 min-w-7 rounded-full bg-chili px-2 py-0.5 text-center text-sm font-extrabold text-white shadow-md">{badge}</span>
       ) : null}
     </Link>
   );
 }
 
-export function EmptyState({ emoji, title, hint, action }: { emoji: string; title: string; hint?: string; action?: ReactNode }) {
+export function EmptyState({ icon, tone = "brand", title, hint, action }: { icon: IconKey; tone?: Tone; title: string; hint?: string; action?: ReactNode }) {
   return (
     <div className="mx-4 mt-6 flex flex-col items-center rounded-card border border-dashed border-line bg-card/60 px-6 py-10 text-center">
-      <div className="text-5xl" aria-hidden>
-        {emoji}
-      </div>
-      <p className="mt-3 text-lg font-extrabold">{title}</p>
+      <IconTile icon={icon} tone={tone} size="xl" />
+      <p className="mt-4 text-lg font-extrabold">{title}</p>
       {hint && <p className="mt-1 text-sm text-muted">{hint}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>

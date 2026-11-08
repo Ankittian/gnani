@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Check, Minus, Plus, UserPlus, X } from "lucide-react";
+import { Check, Minus, Plus, UserPlus, X } from "@/components/common/icons";
 import type { Action } from "@/lib/llm/schema";
 import { formatINR } from "@/lib/domain/money";
 import { INTENT_META } from "@/lib/voice/pipeline";
@@ -124,7 +124,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
               <button
                 type="button"
                 aria-label={`Remove ${it.name}`}
-                className="ml-1 rounded-full p-1 hover:bg-black/5"
+                className="ml-1 rounded-full p-1 hover:bg-brand-soft"
                 onClick={() => onChange({ ...action, items: action.items.filter((_, j) => j !== i) })}
               >
                 <X className="h-3.5 w-3.5" />

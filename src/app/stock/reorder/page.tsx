@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Minus, Plus, Send } from "lucide-react";
+import { Minus, Plus, Send } from "@/components/common/icons";
 import { Card, EmptyState, PageHeader } from "@/components/common/ui";
 import { VoiceNoteComposer } from "@/components/common/VoiceNoteComposer";
 import { useShop } from "@/hooks/useShop";
@@ -31,7 +31,7 @@ export default function ReorderPage() {
       <PageHeader title={`🛒 ${tr("reorderList")}`} subtitle="Distributor ko unki bhasha mein voice note" back="/stock" />
 
       {data && groups.length === 0 ? (
-        <EmptyState emoji="🎉" title="Kuch mangwana nahi hai" hint="Saara stock theek hai." />
+        <EmptyState icon="celebrate" tone="leaf" title="Kuch mangwana nahi hai" hint="Saara stock theek hai." />
       ) : (
         <div className="mx-4 space-y-4">
           {groups.map((g) => {

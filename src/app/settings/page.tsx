@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Play, Trash2 } from "lucide-react";
+import { Play, Trash2 } from "@/components/common/icons";
 import { toast } from "sonner";
 import { Card, PageHeader } from "@/components/common/ui";
 import { CloneRecorder } from "@/components/onboarding/CloneRecorder";
@@ -48,7 +48,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title={`⚙️ ${tr("settings")}`} back="/more" />
+      <PageHeader title={tr("settings")} back="/more" />
       <div className="mx-4 space-y-4">
         <Card>
           <h2 className="mb-2 font-extrabold">Bhasha / Language</h2>

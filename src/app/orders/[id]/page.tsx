@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "motion/react";
-import { Check } from "lucide-react";
+import { Check } from "@/components/common/icons";
 import { toast } from "sonner";
 import { Card, EmptyState, PageHeader } from "@/components/common/ui";
 import { STATUS_STYLE } from "@/app/orders/page";
@@ -25,7 +25,7 @@ export default function OrderPage() {
   }, [id]);
 
   if (data === undefined || !shop) return null;
-  if (!data.order) return <EmptyState emoji="🤷" title="Order nahi mila" />;
+  if (!data.order) return <EmptyState icon="notFound" tone="muted" title="Order nahi mila" />;
   const o = data.order;
   const total = orderTotalPaise(o, data.products);
   const allPacked = o.items.length > 0 && o.items.every((i) => i.packed);
@@ -46,7 +46,7 @@ export default function OrderPage() {
 
       <div className="mx-4 flex items-center justify-between">
         <span className={`rounded-full px-3 py-1 font-bold ${st.cls}`}>
-          {st.emoji} {st.label}
+          <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-current align-middle" aria-hidden />{st.label}
         </span>
         {total != null && <span className="tabular text-2xl font-extrabold">{formatINR(total)}</span>}
       </div>

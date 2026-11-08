@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AnimatePresence, motion } from "motion/react";
-import { Settings } from "lucide-react";
+import { IconTile, Settings, type IconKey } from "@/components/common/icons";
 import { DostOrb } from "@/components/orb/DostOrb";
 import { Avatar, ModuleTile, StatChip, timeAgo } from "@/components/common/ui";
 import { useVoice } from "@/components/voice/VoiceProvider";
@@ -28,7 +28,8 @@ function greetingKey(): "greetingMorning" | "greetingAfternoon" | "greetingEveni
 interface Activity {
   id: string;
   at: string;
-  emoji: string;
+  icon: IconKey;
+  emoji?: string;
   title: string;
   amount?: string;
   tone?: "chili" | "leaf" | "muted";
@@ -67,15 +68,15 @@ export default function HomePage() {
         .map((e) => ({
           id: e.id,
           at: e.createdAt,
-          emoji: e.type === "credit" ? "📒" : "💰",
+          icon: (e.type === "credit" ? "credit" : "collected") as IconKey,
           title: `${byId.get(e.customerId) ?? "?"} · ${e.type === "credit" ? "udhaar" : "jama"}`,
           amount: formatINR(e.amount),
           tone: (e.type === "credit" ? "chili" : "leaf") as Activity["tone"],
         })),
-      ...data.sales.filter((s) => !s.deletedAt).map((s) => ({ id: s.id, at: s.createdAt, emoji: "🧾", title: "Cash sale", amount: formatINR(s.amount), tone: "leaf" as const })),
+      ...data.sales.filter((s) => !s.deletedAt).map((s) => ({ id: s.id, at: s.createdAt, icon: "sales" as IconKey, title: "Cash sale", amount: formatINR(s.amount), tone: "leaf" as const })),
       ...data.stockEvents.map((s) => {
         const p = prod.get(s.productId);
-        return { id: s.id, at: s.createdAt, emoji: p?.emoji ?? "📦", title: `${p?.name ?? "Stock"} · ${s.op === "out" ? "khatam" : s.op === "add" ? `+${s.delta}` : `${p?.stockQty ?? ""} ${p?.unit ?? ""}`}`, tone: "muted" as const };
+        return { id: s.id, at: s.createdAt, icon: "stock" as IconKey, emoji: p?.emoji, title: `${p?.name ?? "Stock"} · ${s.op === "out" ? "khatam" : s.op === "add" ? `+${s.delta}` : `${p?.stockQty ?? ""} ${p?.unit ?? ""}`}`, tone: "muted" as const };
       }),
     ];
     return items.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 6);
@@ -99,7 +100,7 @@ export default function HomePage() {
           </h1>
           <p className="text-sm font-semibold text-muted">{tr(greetingKey())}</p>
         </div>
-        <Link href="/settings" aria-label={tr("settings")} className="rounded-full p-2 text-muted hover:bg-black/5">
+        <Link href="/settings" aria-label={tr("settings")} className="rounded-full p-2 text-muted transition-colors hover:bg-brand-soft hover:text-brand-strong">
           <Settings className="h-6 w-6" />
         </Link>
       </header>
@@ -108,7 +109,7 @@ export default function HomePage() {
       <button
         type="button"
         onClick={() => voice.open()}
-        className="mt-4 flex w-full items-center gap-3 rounded-card border border-line bg-gradient-to-br from-brand-soft to-card p-3 text-left shadow-sticker"
+        className="mt-4 flex w-full items-center gap-3 rounded-card border border-brand/20 bg-gradient-to-br from-brand-soft via-card to-card p-3 text-left shadow-sticker transition-transform active:scale-[0.99]"
       >
         <DostOrb state="idle" size={84} />
         <div className="min-w-0 flex-1">
@@ -130,18 +131,18 @@ export default function HomePage() {
 
       {/* Today stats */}
       <section className="mt-4 grid grid-cols-2 gap-3" aria-label={tr("todayHisaab")}>
-        <StatChip emoji="🧾" label={tr("statSales")} value={formatINR(summary?.salesPaise ?? 0)} tone="leaf" />
-        <StatChip emoji="📒" label={tr("statCreditGiven")} value={formatINR(summary?.creditGivenPaise ?? 0)} tone="chili" />
-        <StatChip emoji="💰" label={tr("statCollected")} value={formatINR(summary?.paymentsPaise ?? 0)} tone="leaf" />
-        <StatChip emoji="⚠️" label={tr("statLowStock")} value={String(lowCount)} tone="brand" />
+        <StatChip icon="sales" label={tr("statSales")} value={formatINR(summary?.salesPaise ?? 0)} tone="leaf" />
+        <StatChip icon="credit" label={tr("statCreditGiven")} value={formatINR(summary?.creditGivenPaise ?? 0)} tone="chili" />
+        <StatChip icon="collected" label={tr("statCollected")} value={formatINR(summary?.paymentsPaise ?? 0)} tone="leaf" />
+        <StatChip icon="lowStock" label={tr("statLowStock")} value={String(lowCount)} tone="brand" />
       </section>
 
       {/* Modules */}
       <section className="mt-4 grid grid-cols-2 gap-3">
-        <ModuleTile href="/khata" emoji="📒" label={tr("modKhata")} sub={lang !== "en-IN" ? "Khata" : null} />
-        <ModuleTile href="/stock" emoji="📦" label={tr("modStock")} sub={lang !== "en-IN" ? "Stock" : null} badge={lowCount || undefined} />
-        <ModuleTile href="/orders" emoji="🛵" label={tr("modOrders")} sub={lang !== "en-IN" ? "Orders" : null} badge={newOrders || undefined} />
-        <ModuleTile href="/hisaab" emoji="📊" label={tr("modHisaab")} sub={lang !== "en-IN" ? "Hisaab" : null} />
+        <ModuleTile href="/khata" icon="khata" tone="brand" label={tr("modKhata")} sub={lang !== "en-IN" ? "Khata" : null} />
+        <ModuleTile href="/stock" icon="stock" tone="leaf" label={tr("modStock")} sub={lang !== "en-IN" ? "Stock" : null} badge={lowCount || undefined} />
+        <ModuleTile href="/orders" icon="orders" tone="indigo" label={tr("modOrders")} sub={lang !== "en-IN" ? "Orders" : null} badge={newOrders || undefined} />
+        <ModuleTile href="/hisaab" icon="hisaab" tone="chili" label={tr("modHisaab")} sub={lang !== "en-IN" ? "Hisaab" : null} />
       </section>
 
       {/* Recent activity */}
@@ -153,9 +154,13 @@ export default function HomePage() {
           <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-sticker">
             {activity.map((a) => (
               <li key={a.id} className="flex items-center gap-3 px-4 py-3">
-                <span className="text-2xl" aria-hidden>
-                  {a.emoji}
-                </span>
+                {a.emoji ? (
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-line/50 text-2xl" aria-hidden>
+                    {a.emoji}
+                  </span>
+                ) : (
+                  <IconTile icon={a.icon} tone={a.tone ?? "muted"} />
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-bold">{a.title}</p>
                   <p className="text-xs font-semibold text-muted">{timeAgo(a.at)}</p>

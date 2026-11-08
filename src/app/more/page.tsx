@@ -9,9 +9,9 @@ export default function MorePage() {
     <div>
       <PageHeader title={tr("navMore")} />
       <div className="grid grid-cols-2 gap-3 px-4">
-        <ModuleTile href="/orders" emoji="🛵" label={tr("modOrders")} />
-        <ModuleTile href="/hisaab" emoji="📊" label={tr("modHisaab")} />
-        <ModuleTile href="/settings" emoji="⚙️" label={tr("settings")} />
+        <ModuleTile href="/orders" icon="orders" tone="indigo" label={tr("modOrders")} />
+        <ModuleTile href="/hisaab" icon="hisaab" tone="chili" label={tr("modHisaab")} />
+        <ModuleTile href="/settings" icon="settings" tone="muted" label={tr("settings")} />
       </div>
     </div>
   );

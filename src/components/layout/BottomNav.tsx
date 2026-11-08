@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Home, LayoutGrid, Mic, Package } from "lucide-react";
+import { BookOpen, Home, LayoutGrid, Mic, Package } from "@/components/common/icons";
 import { motion } from "motion/react";
 import { useShop } from "@/hooks/useShop";
 import { useVoice } from "@/components/voice/VoiceProvider";

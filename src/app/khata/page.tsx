@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Mic, Search } from "lucide-react";
+import { Mic, Search } from "@/components/common/icons";
 import { Avatar, BalancePill, EmptyState, PageHeader, timeAgo } from "@/components/common/ui";
 import { useVoice } from "@/components/voice/VoiceProvider";
 import { useShop } from "@/hooks/useShop";
@@ -52,7 +52,7 @@ export default function KhataPage() {
 
       {customers && list.length === 0 ? (
         <EmptyState
-          emoji="📒"
+          icon="khata"
           title={q ? "Koi nahi mila" : "Khata khaali hai"}
           hint="Bolke shuru karein: “Sharma ji ne 200 udhaar liya”"
           action={

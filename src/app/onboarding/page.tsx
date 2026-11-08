@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/common/icons";
 import { CloneRecorder } from "@/components/onboarding/CloneRecorder";
 import { DostOrb } from "@/components/orb/DostOrb";
 import { clearAll, saveShop } from "@/lib/db/repo";

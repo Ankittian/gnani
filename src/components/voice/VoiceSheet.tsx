@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Keyboard, Mic, RotateCcw, Send, Square, Undo2, X } from "lucide-react";
+import { Keyboard, Mic, RotateCcw, Send, Square, Undo2, X } from "@/components/common/icons";
 import { DostOrb, type OrbState } from "@/components/orb/DostOrb";
 import { ActionCard } from "@/components/voice/ActionCard";
 import { useShop } from "@/hooks/useShop";
@@ -90,7 +90,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
         transition={{ type: "spring", stiffness: 320, damping: 32 }}
       >
         <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-line" />
-        <button type="button" onClick={close} aria-label="Close" className="absolute right-4 top-4 rounded-full p-2 text-muted hover:bg-black/5">
+        <button type="button" onClick={close} aria-label="Close" className="absolute right-4 top-4 rounded-full p-2 text-muted hover:bg-brand-soft">
           <X className="h-6 w-6" />
         </button>
 

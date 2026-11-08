@@ -8,8 +8,8 @@
 ## Status at a glance
 | Phase | Tasks | Done | Status |
 |---|---|---|---|
-| 0 Setup & API truth | 3 | 0 | ⏳ next |
-| 1 Pure foundations (TDD) | 9 | 0 | ⬜ |
+| 0 Setup & API truth | 3 | 3 | ✅ |
+| 1 Pure foundations (TDD) | 9 | 0 | ⏳ |
 | 2 Server routes | 6 | 0 | ⬜ |
 | 3 Design system & shell | 4 | 0 | ⬜ |
 | 4 Voice loop + M1 Khata ⭐ | 8 | 0 | ⬜ |
@@ -36,10 +36,18 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 - [ ] Vercel login (Phase 10.5)
 - [ ] 10–20 s voice sample of a team member for clone (consent) (Phase 5)
 
-## Phase 0 — Setup & API truth
-- [ ] 0.1 Scaffold Next.js + deps + Vitest config
-- [ ] 0.2 `scripts/smoke_gnani.py` (STT, TTS v3.0, clone in hi/kn/ta) + record credit cost
-- [ ] 0.3 Gemini structured-output smoke
+## Phase 0 — Setup & API truth ✅
+- [x] 0.1 Scaffold Next.js 16.4.5 + React 19.3 + Tailwind 4 + deps + Vitest 5 config (cacheComponents off)
+- [x] 0.2 `scripts/smoke_gnani.py` — STT ✅ (hi/kn/ta, ~0.7 s), TTS v3.0 ✅ (hi/kn/ta/hi-en, 1–2 s), clone ✅ (hi/kn/ta verified by STT round-trip). Credit cost: **user to read dashboard**
+- [x] 0.3 Gemini structured-output smoke — both models correct on hi/kn/ta
+
+### API facts learned in Phase 0 (differ from docs — code must follow these)
+- Gnani TTS WAV has a **streaming header (data size 0xFFFFFFFF)** → never trust WAV header length; use mp3 for browser playback.
+- Clone embeddings response is `{success, message, data: {voice_clone_embedding: {embedding, shape:[1,768], dtype}}}`.
+- Cloned TTS **requires `model: "vachana-vc-v1"`** explicitly (timbre models reject `speaker_embedding`); works in hi/kn/ta.
+- STT `.webm` → 400 `UNSUPPORTED_AUDIO_FORMAT` (confirmed). `indic-auto` + `format=transcribe` gives Latin English words + digits ("Sharma ji ने 2 किलो chawal … 340 रुपये").
+- STT error body shape: `{success:false, error:{type, message}}`; TTS error body: `{success:false, message, status_code}`.
+- Gemini `@google/genai` v3: `generateContent({config:{responseMimeType:'application/json', responseJsonSchema, thinkingConfig:{thinkingLevel: ThinkingLevel.LOW}}})`.
 
 ## Phase 1 — Pure foundations (TDD)
 - [ ] 1.1 WAV encoder + resampler
@@ -128,9 +136,9 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 ### Latency (median)
 | Step | Target | Measured |
 |---|---|---|
-| STT | ≤ 1.0 s | |
-| Gemini understand | ≤ 2.0 s | |
-| TTS first byte | ≤ 1.0 s | |
+| STT | ≤ 1.0 s | 0.67–0.90 s (smoke, 4–5 s clips) |
+| Gemini understand | ≤ 2.0 s | flash-lite 1.3–1.7 s · 3.8-flash 2.1–3.7 s |
+| TTS first byte | ≤ 1.0 s | REST full audio 1.1–1.9 s (clone 1.8–2.4 s) |
 | End-to-end voice → confirm card | ≤ 4.0 s | |
 
 ### Accuracy (Phase 10.1)
@@ -142,9 +150,9 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 ### Cloned-voice language support (from 0.2)
 | Language | Works? | Notes |
 |---|---|---|
-| hi-IN | | |
-| kn-IN | | |
-| ta-IN | | |
+| hi-IN | ✅ | STT round-trip exact |
+| kn-IN | ✅ | STT round-trip exact |
+| ta-IN | ✅ | STT round-trip near-exact |
 
 ## Decisions log
 | Date | Decision | Why |
@@ -157,6 +165,9 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 | 2026-11-08 | Money as integer paise; timestamps UTC ISO | no float errors; repo TIMEZONE rule |
 | 2026-11-08 | Internal API camelCase, snake_case only at Gnani boundary | TS↔TS BFF; FRONTEND.md keysToSnake rule targets Kotlin backends |
 | 2026-11-08 | All 5 modules in scope, cut line defined in plan | user choice; protects M1 quality |
+| 2026-11-08 | Understand = `gemini-3.5-flash-lite` (fast), compose + fallback = `gemini-3.8-flash` | smoke: flash-lite ~2× faster with identical extraction |
+| 2026-11-08 | Keys live in `.env` (user choice) — gitignored, Next.js loads it | — |
+| 2026-11-08 | `cacheComponents` disabled in next.config | client-state app; avoids Activity/PPR surprises |
 
 ## Session log
 | Time (IST) | What happened | Commit |

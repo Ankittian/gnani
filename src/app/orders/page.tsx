@@ -1,0 +1,73 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useLiveQuery } from "dexie-react-hooks";
+import { Plus } from "lucide-react";
+import { EmptyState, PageHeader, timeAgo } from "@/components/common/ui";
+import { NewOrderSheet } from "@/components/orders/NewOrderSheet";
+import { useShop } from "@/hooks/useShop";
+import { getDb } from "@/lib/db/schema";
+import { LANGUAGES } from "@/lib/i18n/languages";
+import type { OrderStatus } from "@/lib/types";
+
+export const STATUS_STYLE: Record<OrderStatus, { label: string; cls: string; emoji: string }> = {
+  new: { label: "Naya", cls: "bg-chili-soft text-chili", emoji: "🆕" },
+  packed: { label: "Packed", cls: "bg-brand-soft text-brand-ink", emoji: "📦" },
+  delivered: { label: "Delivered", cls: "bg-leaf-soft text-leaf", emoji: "✅" },
+};
+
+export default function OrdersPage() {
+  const { shop, tr } = useShop();
+  const [open, setOpen] = useState(false);
+  const orders = useLiveQuery(async () => (await getDb().orders.toArray()).sort((a, b) => b.createdAt.localeCompare(a.createdAt)), []);
+
+  if (!shop) return null;
+
+  return (
+    <div>
+      <PageHeader
+        title={`🛵 ${tr("modOrders")}`}
+        subtitle={`${orders?.filter((o) => o.status !== "delivered").length ?? 0} pending`}
+        back="/more"
+        right={
+          <button type="button" onClick={() => setOpen(true)} className="flex min-h-11 items-center gap-1 rounded-full bg-brand px-4 font-extrabold text-brand-ink shadow-sticker">
+            <Plus className="h-5 w-5" /> {tr("newOrder")}
+          </button>
+        }
+      />
+
+      {orders && orders.length === 0 ? (
+        <EmptyState emoji="🛵" title="Koi order nahi" hint="Customer ka voice note daalein — packing list ban jaayegi." />
+      ) : (
+        <ul className="mx-4 mt-2 space-y-3">
+          {(orders ?? []).map((o) => {
+            const st = STATUS_STYLE[o.status];
+            const packed = o.items.filter((i) => i.packed).length;
+            return (
+              <li key={o.id}>
+                <Link href={`/orders/${o.id}`} className="block rounded-card border border-line bg-card p-4 shadow-sticker active:scale-[0.99]">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-lg font-extrabold">{o.customerName ?? "Customer"}</p>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-bold ${st.cls}`}>
+                      {st.emoji} {st.label}
+                    </span>
+                  </div>
+                  <p className="mt-1 truncate text-sm text-muted">{o.items.map((i) => i.name).join(", ")}</p>
+                  <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-muted">
+                    <span>{timeAgo(o.createdAt)}</span>·<span>{LANGUAGES[o.language]?.nativeName}</span>·
+                    <span>
+                      {packed}/{o.items.length} packed
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {open && <NewOrderSheet shop={shop} onClose={() => setOpen(false)} />}
+    </div>
+  );
+}

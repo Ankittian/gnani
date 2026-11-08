@@ -1,69 +1,186 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useLiveQuery } from "dexie-react-hooks";
+import { AnimatePresence, motion } from "motion/react";
+import { Settings } from "lucide-react";
+import { DostOrb } from "@/components/orb/DostOrb";
+import { Avatar, ModuleTile, StatChip, timeAgo } from "@/components/common/ui";
+import { useVoice } from "@/components/voice/VoiceProvider";
+import { useShop } from "@/hooks/useShop";
+import { getDb } from "@/lib/db/schema";
+import { formatINR } from "@/lib/domain/money";
+import { isLow } from "@/lib/domain/stock";
+import { localDayBounds, summarizeDay } from "@/lib/domain/summary";
+import { LANGUAGES } from "@/lib/i18n/languages";
+
+const HINTS: Record<string, string[]> = {
+  "hi-IN": ["Sharma ji ne 340 ka saamaan udhaar liya", "Fatima ji ne 500 diye", "Maggi khatam ho gaya", "Suresh ka kitna baaki hai?", "Aaj ka hisaab sunao"],
+  "en-IN": ["Joseph paid 500 rupees", "Sharma ji took 2 kg rice on credit, 140 rupees", "Parle-G only 2 packets left", "How much does Murugan owe?"],
+};
+
+function greetingKey(): "greetingMorning" | "greetingAfternoon" | "greetingEvening" {
+  const h = new Date().getHours();
+  return h < 12 ? "greetingMorning" : h < 17 ? "greetingAfternoon" : "greetingEvening";
+}
+
+interface Activity {
+  id: string;
+  at: string;
+  emoji: string;
+  title: string;
+  amount?: string;
+  tone?: "chili" | "leaf" | "muted";
+}
+
+export default function HomePage() {
+  const { shop, lang, tr } = useShop();
+  const voice = useVoice();
+  const [hintIdx, setHintIdx] = useState(0);
+
+  const data = useLiveQuery(async () => {
+    const db = getDb();
+    const { startUtc } = localDayBounds(new Date());
+    const [customers, ledger, sales, products, orders, stockEvents] = await Promise.all([
+      db.customers.toArray(),
+      db.ledgerEntries.where("createdAt").aboveOrEqual(new Date(Date.now() - 7 * 864e5).toISOString()).toArray(),
+      db.sales.where("createdAt").aboveOrEqual(startUtc).toArray(),
+      db.products.toArray(),
+      db.orders.toArray(),
+      db.stockEvents.orderBy("createdAt").reverse().limit(5).toArray(),
+    ]);
+    return { customers, ledger, sales, products, orders, stockEvents };
+  }, []);
+
+  const summary = useMemo(() => (data ? summarizeDay(data, new Date()) : null), [data]);
+  const lowCount = useMemo(() => data?.products.filter(isLow).length ?? 0, [data]);
+  const newOrders = useMemo(() => data?.orders.filter((o) => o.status === "new").length ?? 0, [data]);
+
+  const activity = useMemo<Activity[]>(() => {
+    if (!data) return [];
+    const byId = new Map(data.customers.map((c) => [c.id, c.name]));
+    const prod = new Map(data.products.map((p) => [p.id, p]));
+    const items: Activity[] = [
+      ...data.ledger
+        .filter((e) => !e.deletedAt)
+        .map((e) => ({
+          id: e.id,
+          at: e.createdAt,
+          emoji: e.type === "credit" ? "📒" : "💰",
+          title: `${byId.get(e.customerId) ?? "?"} · ${e.type === "credit" ? "udhaar" : "jama"}`,
+          amount: formatINR(e.amount),
+          tone: (e.type === "credit" ? "chili" : "leaf") as Activity["tone"],
+        })),
+      ...data.sales.filter((s) => !s.deletedAt).map((s) => ({ id: s.id, at: s.createdAt, emoji: "🧾", title: "Cash sale", amount: formatINR(s.amount), tone: "leaf" as const })),
+      ...data.stockEvents.map((s) => {
+        const p = prod.get(s.productId);
+        return { id: s.id, at: s.createdAt, emoji: p?.emoji ?? "📦", title: `${p?.name ?? "Stock"} · ${s.op === "out" ? "khatam" : s.op === "add" ? `+${s.delta}` : `${p?.stockQty ?? ""} ${p?.unit ?? ""}`}`, tone: "muted" as const };
+      }),
+    ];
+    return items.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 6);
+  }, [data]);
+
+  const hints = HINTS[lang] ?? [LANGUAGES[lang].sampleCommand, ...HINTS["hi-IN"]];
+  useEffect(() => {
+    const id = setInterval(() => setHintIdx((i) => (i + 1) % hints.length), 3500);
+    return () => clearInterval(id);
+  }, [hints.length]);
+
+  if (!shop) return null;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="px-4 pt-5">
+      <header className="flex items-start justify-between">
+        <div>
+          <p className="text-sm font-semibold text-muted">{shop.name}</p>
+          <h1 className="text-3xl font-extrabold leading-tight">
+            {LANGUAGES[lang].greeting}, {shop.ownerName} 👋
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <p className="text-sm font-semibold text-muted">{tr(greetingKey())}</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <Link href="/settings" aria-label={tr("settings")} className="rounded-full p-2 text-muted hover:bg-black/5">
+          <Settings className="h-6 w-6" />
+        </Link>
+      </header>
+
+      {/* Dost + rotating try-saying hint */}
+      <button
+        type="button"
+        onClick={() => voice.open()}
+        className="mt-4 flex w-full items-center gap-3 rounded-card border border-line bg-gradient-to-br from-brand-soft to-card p-3 text-left shadow-sticker"
+      >
+        <DostOrb state="idle" size={84} />
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-strong">{tr("trySaying")}</p>
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={hintIdx}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className="text-lg font-bold leading-snug"
+            >
+              “{hints[hintIdx % hints.length]}”
+            </motion.p>
+          </AnimatePresence>
+          <p className="mt-0.5 text-sm font-semibold text-muted">🎙️ {tr("tapToSpeak")}</p>
         </div>
-      </main>
+      </button>
+
+      {/* Today stats */}
+      <section className="mt-4 grid grid-cols-2 gap-3" aria-label={tr("todayHisaab")}>
+        <StatChip emoji="🧾" label={tr("statSales")} value={formatINR(summary?.salesPaise ?? 0)} tone="leaf" />
+        <StatChip emoji="📒" label={tr("statCreditGiven")} value={formatINR(summary?.creditGivenPaise ?? 0)} tone="chili" />
+        <StatChip emoji="💰" label={tr("statCollected")} value={formatINR(summary?.paymentsPaise ?? 0)} tone="leaf" />
+        <StatChip emoji="⚠️" label={tr("statLowStock")} value={String(lowCount)} tone="brand" />
+      </section>
+
+      {/* Modules */}
+      <section className="mt-4 grid grid-cols-2 gap-3">
+        <ModuleTile href="/khata" emoji="📒" label={tr("modKhata")} sub={lang !== "en-IN" ? "Khata" : null} />
+        <ModuleTile href="/stock" emoji="📦" label={tr("modStock")} sub={lang !== "en-IN" ? "Stock" : null} badge={lowCount || undefined} />
+        <ModuleTile href="/orders" emoji="🛵" label={tr("modOrders")} sub={lang !== "en-IN" ? "Orders" : null} badge={newOrders || undefined} />
+        <ModuleTile href="/hisaab" emoji="📊" label={tr("modHisaab")} sub={lang !== "en-IN" ? "Hisaab" : null} />
+      </section>
+
+      {/* Recent activity */}
+      <section className="mt-6">
+        <h2 className="mb-2 text-lg font-extrabold">{tr("recent")}</h2>
+        {activity.length === 0 ? (
+          <p className="rounded-card border border-dashed border-line px-4 py-6 text-center text-muted">Abhi kuch nahi — mic dabake shuru karein 🎙️</p>
+        ) : (
+          <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-sticker">
+            {activity.map((a) => (
+              <li key={a.id} className="flex items-center gap-3 px-4 py-3">
+                <span className="text-2xl" aria-hidden>
+                  {a.emoji}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-bold">{a.title}</p>
+                  <p className="text-xs font-semibold text-muted">{timeAgo(a.at)}</p>
+                </div>
+                {a.amount && <span className={`tabular font-extrabold ${a.tone === "chili" ? "text-chili" : "text-leaf"}`}>{a.amount}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {summary && summary.topOwing.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-2 text-lg font-extrabold">Sabse zyada baaki</h2>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {summary.topOwing.map((c) => (
+              <Link key={c.id} href={`/khata/${c.id}`} className="flex min-w-36 flex-col items-center gap-1 rounded-card border border-line bg-card p-3 shadow-sticker">
+                <Avatar name={c.name} />
+                <span className="max-w-full truncate text-sm font-bold">{c.name}</span>
+                <span className="tabular font-extrabold text-chili">{formatINR(c.balance)}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

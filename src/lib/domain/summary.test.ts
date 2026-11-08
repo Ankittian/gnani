@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Customer, LedgerEntry, Order, Product, Sale } from "@/lib/types";
-import { localDateKey, localDayBounds, summarizeDay, weekSeries } from "./summary";
+import { localDateKey, localDayBounds, summarizeDay, weekSales, weekSeries } from "./summary";
 
 // Local-time constructors so expectations hold in any runtime TZ.
 const at = (d: number, h: number, m = 0) => new Date(2026, 10, d, h, m).toISOString();
@@ -76,5 +76,19 @@ describe("weekSeries", () => {
 
   it("localDateKey pads", () => {
     expect(localDateKey(new Date(2026, 0, 5))).toBe("2026-01-05");
+  });
+});
+
+describe("weekSales", () => {
+  const sale = (createdAt: string, amount: number, deletedAt: string | null = null): Sale => ({ id: createdAt + amount, items: [], amount, transcript: "", createdAt, deletedAt });
+
+  it("sums cash sales per local day, oldest → newest, ignoring deleted and out-of-range", () => {
+    const sales = [sale(at(8, 9), 100), sale(at(8, 18), 50), sale(at(5, 9), 70), sale(at(6, 9), 999, at(6, 10)), sale(at(1, 9), 999)];
+    const series = weekSales(sales, new Date(2026, 10, 8, 20));
+    expect(series).toHaveLength(7);
+    expect(series[0].date).toBe("2026-11-02");
+    expect(series[6]).toEqual({ date: "2026-11-08", amount: 150 });
+    expect(series[3].amount).toBe(70);
+    expect(series.reduce((a, d) => a + d.amount, 0)).toBe(220);
   });
 });

@@ -15,7 +15,8 @@ import { getDb } from "@/lib/db/schema";
 import { recordUsage } from "@/lib/db/repo";
 import { formatINR, paiseToRupees } from "@/lib/domain/money";
 import { isLow } from "@/lib/domain/stock";
-import { summarizeDay, weekSeries } from "@/lib/domain/summary";
+import { summarizeDay, weekSales, weekSeries } from "@/lib/domain/summary";
+import { CompareBars, Donut, TrendArea } from "@/components/charts/charts";
 
 function CountUp({ paise }: { paise: number }) {
   const [v, setV] = useState(0);
@@ -26,23 +27,6 @@ function CountUp({ paise }: { paise: number }) {
     return () => c.stop();
   }, [paise]);
   return <>{formatINR(v)}</>;
-}
-
-function WeekBars({ series }: { series: ReturnType<typeof weekSeries> }) {
-  const max = Math.max(1, ...series.flatMap((d) => [d.credit, d.payment]));
-  return (
-    <div className="flex h-36 items-end justify-between gap-2" role="img" aria-label="Last 7 days: udhaar given vs collected">
-      {series.map((d) => (
-        <div key={d.date} className="flex flex-1 flex-col items-center gap-1">
-          <div className="flex h-28 w-full items-end justify-center gap-1">
-            <div className="w-1/2 rounded-t-md bg-chili" style={{ height: `${(d.credit / max) * 100}%`, minHeight: d.credit ? 4 : 0 }} />
-            <div className="w-1/2 rounded-t-md bg-leaf" style={{ height: `${(d.payment / max) * 100}%`, minHeight: d.payment ? 4 : 0 }} />
-          </div>
-          <span className="text-[11px] text-muted">{new Date(d.date + "T00:00").toLocaleDateString("en-IN", { weekday: "short" })}</span>
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function HisaabInner() {
@@ -66,6 +50,8 @@ function HisaabInner() {
 
   const s = useMemo(() => (data ? summarizeDay(data, new Date()) : null), [data]);
   const week = useMemo(() => (data ? weekSeries(data.ledger, new Date()) : []), [data]);
+  const sales7 = useMemo(() => (data ? weekSales(data.sales, new Date()) : []), [data]);
+  const weekSalesTotal = useMemo(() => sales7.reduce((a, d) => a + d.amount, 0), [sales7]);
 
   const play = async () => {
     if (!shop || !data || !s) return;
@@ -140,14 +126,39 @@ function HisaabInner() {
       </Card>
 
       <Card className="mx-4 mt-3">
+        <h2 className="font-semibold">{tr("statSales")} · 7 din</h2>
+        <p className="tabular mb-2 text-2xl font-semibold tracking-tight">{formatINR(weekSalesTotal)}</p>
+        <TrendArea data={sales7} name={tr("statSales")} color="var(--brand)" label="Cash sales, last 7 days" />
+      </Card>
+
+      <Card className="mx-4 mt-3">
+        <h2 className="mb-3 font-semibold">Aaj ka mix</h2>
+        <Donut
+          label="Today: cash sales, collected and credit given"
+          centerLabel="Net cash in"
+          centerValue={formatINR(s.netCashInPaise)}
+          slices={[
+            { name: tr("statSales"), value: s.salesPaise, color: "var(--brand)" },
+            { name: tr("statCollected"), value: s.paymentsPaise, color: "var(--leaf)" },
+            { name: tr("statCreditGiven"), value: s.creditGivenPaise, color: "var(--chili)" },
+          ]}
+        />
+      </Card>
+
+      <Card className="mx-4 mt-3">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="font-semibold">Pichhle 7 din</h2>
           <span className="flex items-center gap-3 text-xs text-muted">
             <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-chili" />udhaar</span>
-            <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-leaf" />jama</span>
+            <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-brand" />jama</span>
           </span>
         </div>
-        <WeekBars series={week} />
+        <CompareBars
+          data={week}
+          a={{ key: "credit", name: "Udhaar", color: "var(--chili)" }}
+          b={{ key: "payment", name: "Jama", color: "var(--brand)" }}
+          label="Last 7 days: udhaar given vs collected"
+        />
       </Card>
 
       {s.topOwing.length > 0 && (

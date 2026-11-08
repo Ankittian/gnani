@@ -12,7 +12,8 @@ import { useShop } from "@/hooks/useShop";
 import { getDb } from "@/lib/db/schema";
 import { formatINR } from "@/lib/domain/money";
 import { isLow } from "@/lib/domain/stock";
-import { localDayBounds, summarizeDay } from "@/lib/domain/summary";
+import { summarizeDay, weekSales } from "@/lib/domain/summary";
+import { Sparkline } from "@/components/charts/charts";
 import { LANGUAGES } from "@/lib/i18n/languages";
 
 const HINTS: Record<string, string[]> = {
@@ -37,11 +38,10 @@ export default function HomePage() {
 
   const data = useLiveQuery(async () => {
     const db = getDb();
-    const { startUtc } = localDayBounds(new Date());
     const [customers, ledger, sales, products, orders, stockEvents] = await Promise.all([
       db.customers.toArray(),
       db.ledgerEntries.where("createdAt").aboveOrEqual(new Date(Date.now() - 7 * 864e5).toISOString()).toArray(),
-      db.sales.where("createdAt").aboveOrEqual(startUtc).toArray(),
+      db.sales.where("createdAt").aboveOrEqual(new Date(Date.now() - 7 * 864e5).toISOString()).toArray(),
       db.products.toArray(),
       db.orders.toArray(),
       db.stockEvents.orderBy("createdAt").reverse().limit(5).toArray(),
@@ -50,6 +50,7 @@ export default function HomePage() {
   }, []);
 
   const summary = useMemo(() => (data ? summarizeDay(data, new Date()) : null), [data]);
+  const sales7 = useMemo(() => (data ? weekSales(data.sales, new Date()) : []), [data]);
   const lowCount = useMemo(() => data?.products.filter(isLow).length ?? 0, [data]);
   const newOrders = useMemo(() => data?.orders.filter((o) => o.status === "new").length ?? 0, [data]);
 
@@ -105,7 +106,10 @@ export default function HomePage() {
         <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
         <p className="relative text-sm text-white/70">{tr("statSales")}</p>
         <p className="tabular relative mt-1 text-[40px] font-semibold leading-none tracking-tight">{formatINR(summary?.salesPaise ?? 0)}</p>
-        <div className="relative mt-5 grid grid-cols-3 gap-2">
+        <div className="relative -mx-1 mt-2">
+          <Sparkline data={sales7} label="Cash sales, last 7 days" />
+        </div>
+        <div className="relative mt-3 grid grid-cols-3 gap-2">
           {[
             { label: tr("statCreditGiven"), value: formatINR(summary?.creditGivenPaise ?? 0) },
             { label: tr("statCollected"), value: formatINR(summary?.paymentsPaise ?? 0) },

@@ -93,3 +93,26 @@ export function weekSeries(ledger: LedgerEntry[], endDay: Date): WeekPoint[] {
   }
   return points;
 }
+
+export interface SalesPoint {
+  date: string;
+  amount: Paise;
+}
+
+/** Cash sales per local day for the 7 days ending at `endDay`, oldest → newest. */
+export function weekSales(sales: Sale[], endDay: Date): SalesPoint[] {
+  const points: SalesPoint[] = [];
+  const index = new Map<string, SalesPoint>();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate() - i);
+    const pt = { date: localDateKey(d), amount: 0 };
+    points.push(pt);
+    index.set(pt.date, pt);
+  }
+  for (const s of sales) {
+    if (s.deletedAt) continue;
+    const pt = index.get(localDateKey(new Date(s.createdAt)));
+    if (pt) pt.amount += s.amount;
+  }
+  return points;
+}

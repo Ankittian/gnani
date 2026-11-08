@@ -31,7 +31,7 @@ export default function OrdersPage() {
         subtitle={`${orders?.filter((o) => o.status !== "delivered").length ?? 0} pending`}
         back="/more"
         right={
-          <button type="button" onClick={() => setOpen(true)} className="flex min-h-11 items-center gap-1 rounded-full bg-brand px-4 font-extrabold text-brand-ink shadow-sticker">
+          <button type="button" onClick={() => setOpen(true)} className="flex min-h-11 items-center gap-1 rounded-full bg-brand px-4 font-semibold text-brand-ink shadow-card">
             <Plus className="h-5 w-5" /> {tr("newOrder")}
           </button>
         }
@@ -46,15 +46,15 @@ export default function OrdersPage() {
             const packed = o.items.filter((i) => i.packed).length;
             return (
               <li key={o.id}>
-                <Link href={`/orders/${o.id}`} className="block rounded-card border border-line bg-card p-4 shadow-sticker active:scale-[0.99]">
+                <Link href={`/orders/${o.id}`} className="block rounded-card border border-line bg-card p-4 shadow-card active:scale-[0.99]">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-lg font-extrabold">{o.customerName ?? "Customer"}</p>
-                    <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-bold ${st.cls}`}>
+                    <p className="truncate text-lg font-semibold">{o.customerName ?? "Customer"}</p>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-semibold ${st.cls}`}>
                       <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-current align-middle" aria-hidden />{st.label}
                     </span>
                   </div>
                   <p className="mt-1 truncate text-sm text-muted">{o.items.map((i) => i.name).join(", ")}</p>
-                  <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-muted">
+                  <div className="mt-2 flex items-center gap-2 text-xs text-muted">
                     <span>{timeAgo(o.createdAt)}</span>·<span>{LANGUAGES[o.language]?.nativeName}</span>·
                     <span>
                       {packed}/{o.items.length} packed

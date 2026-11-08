@@ -105,23 +105,23 @@ export type IconKey = keyof typeof SEMANTIC;
 export type Tone = "leaf" | "chili" | "brand" | "indigo" | "muted";
 
 const TONE: Record<Tone, string> = {
-  leaf: "from-leaf-soft to-leaf/25 text-leaf",
-  chili: "from-chili-soft to-chili/25 text-chili",
-  brand: "from-brand-soft to-brand/40 text-brand-strong",
-  indigo: "from-indigo-soft to-indigo/25 text-indigo",
-  muted: "from-line/60 to-line text-muted",
+  leaf: "bg-leaf-soft text-leaf",
+  chili: "bg-chili-soft text-chili",
+  brand: "bg-brand-soft text-brand-strong",
+  indigo: "bg-indigo-soft text-indigo",
+  muted: "bg-line/70 text-muted",
 };
 
-const SIZE = { sm: ["h-9 w-9 rounded-xl", 20], md: ["h-11 w-11 rounded-2xl", 24], lg: ["h-14 w-14 rounded-2xl", 30], xl: ["h-20 w-20 rounded-3xl", 40] } as const;
+const SIZE = { sm: ["h-9 w-9 rounded-xl", 20], md: ["h-11 w-11 rounded-[14px]", 22], lg: ["h-12 w-12 rounded-2xl", 26], xl: ["h-20 w-20 rounded-3xl", 40] } as const;
 
 export function IconTile({ icon, tone = "brand", size = "md", className = "" }: { icon: IconKey; tone?: Tone; size?: keyof typeof SIZE; className?: string }) {
   const [box, px] = SIZE[size];
   return (
     <span
       aria-hidden
-      className={`inline-flex shrink-0 items-center justify-center bg-gradient-to-br shadow-[inset_0_1px_0_rgb(255_255_255/0.5)] ${box} ${TONE[tone]} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center ${box} ${TONE[tone]} ${className}`}
     >
-      <HugeiconsIcon icon={SEMANTIC[icon]} size={px} strokeWidth={1.7} />
+      <HugeiconsIcon icon={SEMANTIC[icon]} size={px} strokeWidth={1.5} />
     </span>
   );
 }

@@ -28,15 +28,15 @@ export default function KhataPage() {
 
   return (
     <div>
-      <PageHeader title={`📒 ${tr("modKhata")}`} subtitle={`${customers?.length ?? 0} customers`} />
+      <PageHeader title={`${tr("modKhata")}`} subtitle={`${customers?.length ?? 0} customers`} />
 
-      <div className="mx-4 rounded-card bg-gradient-to-br from-chili to-[#b91c1c] p-4 text-white shadow-sticker">
-        <p className="text-sm font-semibold opacity-90">{tr("totalOutstanding")}</p>
-        <p className="tabular text-4xl font-extrabold">{formatINR(total)}</p>
-        <p className="mt-1 text-sm opacity-90">{list.filter((c) => c.balance > 0).length} logon ka udhaar baaki</p>
+      <div className="mx-4 rounded-card border border-line bg-card p-5 shadow-card">
+        <p className="text-sm text-muted">{tr("totalOutstanding")}</p>
+        <p className="tabular mt-1 text-[36px] font-semibold leading-none tracking-tight text-chili">{formatINR(total)}</p>
+        <p className="mt-2 text-sm text-muted">{list.filter((c) => c.balance > 0).length} logon ka udhaar baaki</p>
       </div>
 
-      <div className="mx-4 mt-4 flex items-center gap-2 rounded-2xl border border-line bg-card px-3 shadow-sticker">
+      <div className="mx-4 mt-4 flex items-center gap-2 rounded-2xl border border-line bg-card px-3 shadow-card">
         <Search className="h-5 w-5 text-muted" />
         <input
           value={q}
@@ -56,20 +56,20 @@ export default function KhataPage() {
           title={q ? "Koi nahi mila" : "Khata khaali hai"}
           hint="Bolke shuru karein: “Sharma ji ne 200 udhaar liya”"
           action={
-            <button type="button" onClick={() => voice.open()} className="rounded-full bg-brand px-5 py-3 font-extrabold text-brand-ink shadow-sticker">
-              🎙️ {tr("tapToSpeak")}
+            <button type="button" onClick={() => voice.open()} className="rounded-full bg-brand px-5 py-3 font-semibold text-brand-ink shadow-card">
+              {tr("tapToSpeak")}
             </button>
           }
         />
       ) : (
-        <ul className="mx-4 mt-4 divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-sticker">
+        <ul className="mx-4 mt-4 divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-card">
           {list.map((c) => (
             <li key={c.id}>
               <Link href={`/khata/${c.id}`} className="flex min-h-16 items-center gap-3 px-4 py-3 active:bg-black/5">
                 <Avatar name={c.name} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-lg font-bold">{c.name}</p>
-                  <p className="text-xs font-semibold text-muted">{timeAgo(c.updatedAt)}</p>
+                  <p className="truncate text-lg font-semibold">{c.name}</p>
+                  <p className="text-xs text-muted">{timeAgo(c.updatedAt)}</p>
                 </div>
                 <BalancePill balance={c.balance} />
               </Link>

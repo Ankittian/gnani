@@ -62,7 +62,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
   const remaining = Math.max(0, recorder.maxSec - recorder.elapsed);
   const status =
     micDenied && !state.transcript && (phase === "recording" || phase === "idle")
-      ? "Mic permission chahiye — ya neeche likh dein 👇"
+      ? "Mic permission chahiye — ya neeche likh dein"
       : phase === "recording"
         ? tr("listening")
         : phase === "transcribing" || phase === "understanding" || phase === "committing"
@@ -104,17 +104,17 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
             <DostOrb state={micDenied && phase === "recording" ? "sad" : ORB[phase]} level={level} size={150} />
           </button>
 
-          <p className="mt-3 min-h-7 px-4 text-center text-lg font-bold" aria-live="polite">
+          <p className="mt-3 min-h-7 px-4 text-center text-lg font-semibold" aria-live="polite">
             {status}
           </p>
 
           {recording && !micDenied && (
             <div className="mt-2 flex items-center gap-3">
-              <span className="tabular rounded-full bg-card px-3 py-1 text-sm font-bold text-muted">0:{String(Math.ceil(remaining)).padStart(2, "0")}</span>
+              <span className="tabular rounded-full bg-card px-3 py-1 text-sm font-semibold text-muted">0:{String(Math.ceil(remaining)).padStart(2, "0")}</span>
               <button
                 type="button"
                 onClick={() => void v.stopListening()}
-                className="flex min-h-12 items-center gap-2 rounded-full bg-chili px-5 font-bold text-white shadow-sticker active:scale-95"
+                className="flex min-h-12 items-center gap-2 rounded-full bg-chili px-5 font-semibold text-white shadow-card active:scale-95"
               >
                 <Square className="h-4 w-4 fill-current" /> Done
               </button>
@@ -130,7 +130,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
               className="mt-4 rounded-card border border-dashed border-line bg-card/70 px-4 py-3"
             >
               <div className="mb-1 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-muted">
-                <span>🎙️ Suna</span>
+                <span>Suna</span>
                 {detected && <span className="rounded-full bg-indigo-soft px-2 py-0.5 normal-case text-indigo">{detected.nativeName}</span>}
               </div>
               <p className="text-lg leading-snug">“{state.transcript}”</p>
@@ -161,9 +161,9 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
                 key={`${o.customerId}-${o.label}`}
                 type="button"
                 onClick={() => v.chooseOption(o.customerId, o.label)}
-                className="min-h-14 rounded-2xl border border-line bg-card px-4 text-left text-lg font-bold shadow-sticker active:scale-[0.99]"
+                className="min-h-14 rounded-2xl border border-line bg-card px-4 text-left text-lg font-semibold shadow-card active:scale-[0.99]"
               >
-                👤 {o.label}
+                {o.label}
               </button>
             ))}
           </div>
@@ -174,7 +174,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
             <button
               type="button"
               onClick={() => void v.undo()}
-              className="flex min-h-12 items-center gap-2 rounded-full border border-line bg-card px-5 font-bold text-muted"
+              className="flex min-h-12 items-center gap-2 rounded-full border border-line bg-card px-5 font-semibold text-muted"
             >
               <Undo2 className="h-4 w-4" /> {tr("undo")}
             </button>
@@ -186,7 +186,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
             <button
               type="button"
               onClick={() => void v.startListening()}
-              className="flex min-h-14 items-center gap-2 rounded-full bg-brand px-6 text-lg font-extrabold text-brand-ink shadow-sticker active:scale-95"
+              className="flex min-h-14 items-center gap-2 rounded-full bg-brand px-6 text-lg font-semibold text-brand-ink shadow-card active:scale-95"
             >
               {phase === "error" ? <RotateCcw className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
               {phase === "error" ? tr("retry") : tr("tapToSpeak")}
@@ -225,7 +225,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
                 v.reset();
                 setTyping(true);
               }}
-              className="mx-auto flex items-center gap-2 text-sm font-semibold text-muted underline-offset-4 hover:underline"
+              className="mx-auto flex items-center gap-2 text-sm text-muted underline-offset-4 hover:underline"
             >
               <Keyboard className="h-4 w-4" /> {tr("typeInstead")}
             </button>

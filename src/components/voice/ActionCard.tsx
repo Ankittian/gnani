@@ -60,15 +60,15 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
     <motion.div
       initial={{ y: 24, opacity: 0, scale: 0.98 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
-      className="rounded-card border border-line bg-card p-4 shadow-sticker"
+      className="rounded-card border border-line bg-card p-4 shadow-card"
       data-testid="action-card"
     >
       <div className="mb-3 flex items-center gap-2">
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${TONE[meta.tone]}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${TONE[meta.tone]}`}>
           <span aria-hidden>{meta.emoji}</span>
           {meta.label}
         </span>
-        {action.confidence < 0.6 && <span className="text-xs font-semibold text-muted">please check ✋</span>}
+        {action.confidence < 0.6 && <span className="text-xs text-muted">please check</span>}
       </div>
 
       {action.customer && (
@@ -81,10 +81,10 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
               id="ac-customer"
               value={action.customer.name}
               onChange={(e) => onChange({ ...action, customer: { ...action.customer!, name: e.target.value } })}
-              className="min-h-12 flex-1 rounded-2xl border border-line bg-bg px-3 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand"
+              className="min-h-12 flex-1 rounded-2xl border border-line bg-bg px-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {action.customer.isNew && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-soft px-2.5 py-1 text-xs font-bold text-indigo">
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-soft px-2.5 py-1 text-xs font-semibold text-indigo">
                 <UserPlus className="h-3.5 w-3.5" /> New
               </span>
             )}
@@ -100,14 +100,14 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
           <div
             className={`flex items-center rounded-2xl border bg-bg px-3 ${problem === "missing_amount" ? "border-chili ring-2 ring-chili/30" : "border-line"}`}
           >
-            <span className="text-3xl font-extrabold text-muted">₹</span>
+            <span className="text-3xl font-semibold text-muted">₹</span>
             <input
               id="ac-amount"
               inputMode="decimal"
               value={action.amountPaise != null ? String(action.amountPaise / 100) : ""}
               placeholder="0"
               onChange={(e) => setAmount(e.target.value)}
-              className="tabular min-h-14 w-full bg-transparent px-2 text-4xl font-extrabold focus:outline-none"
+              className="tabular min-h-14 w-full bg-transparent px-2 text-4xl font-semibold focus:outline-none"
             />
           </div>
           {problem === "missing_amount" && <p className="mt-1 text-sm font-semibold text-chili">Kitne rupaye? Amount daal dein.</p>}
@@ -138,12 +138,12 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
         <ul className="mb-3 space-y-2">
           {action.stockOps.map((op, i) => (
             <li key={`${op.name}-${i}`} className="flex items-center justify-between gap-2 rounded-2xl bg-bg px-3 py-2">
-              <span className="font-bold">{op.name}</span>
+              <span className="font-semibold">{op.name}</span>
               {op.op === "out" ? (
-                <span className="rounded-full bg-chili-soft px-3 py-1 text-sm font-bold text-chili">khatam</span>
+                <span className="rounded-full bg-chili-soft px-3 py-1 text-sm font-semibold text-chili">khatam</span>
               ) : (
                 <span className="flex items-center gap-1">
-                  <span className="text-xs font-semibold text-muted">{op.op === "add" ? "+ add" : op.op === "remove" ? "− remove" : "= set"}</span>
+                  <span className="text-xs text-muted">{op.op === "add" ? "+ add" : op.op === "remove" ? "− remove" : "= set"}</span>
                   <button
                     type="button"
                     aria-label="decrease"
@@ -152,7 +152,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="tabular w-10 text-center text-lg font-extrabold">{op.qty ?? 0}</span>
+                  <span className="tabular w-10 text-center text-lg font-semibold">{op.qty ?? 0}</span>
                   <button
                     type="button"
                     aria-label="increase"
@@ -169,14 +169,14 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
         </ul>
       )}
 
-      {action.notes && <p className="mb-3 rounded-2xl bg-bg px-3 py-2 text-sm text-muted">📝 {action.notes}</p>}
+      {action.notes && <p className="mb-3 rounded-2xl bg-bg px-3 py-2 text-sm text-muted">{action.notes}</p>}
 
       <div className="flex gap-2">
         <button
           type="button"
           onClick={onCancel}
           disabled={busy}
-          className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-line bg-card text-lg font-bold text-muted active:scale-[0.98]"
+          className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-line bg-card text-lg font-semibold text-muted active:scale-[0.98]"
         >
           <X className="h-5 w-5" /> {cancelLabel}
         </button>
@@ -184,7 +184,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
           type="button"
           onClick={onConfirm}
           disabled={busy || !!problem}
-          className="relative flex min-h-14 flex-[2] items-center justify-center gap-2 overflow-hidden rounded-2xl bg-leaf text-lg font-extrabold text-white shadow-sticker active:scale-[0.98] disabled:opacity-50"
+          className="relative flex min-h-14 flex-[2] items-center justify-center gap-2 overflow-hidden rounded-2xl bg-leaf text-lg font-semibold text-white shadow-card active:scale-[0.98] disabled:opacity-50"
         >
           {autoConfirm && countdown > 0 && (
             <motion.span

@@ -38,7 +38,7 @@ function WeekBars({ series }: { series: ReturnType<typeof weekSeries> }) {
             <div className="w-1/2 rounded-t-md bg-chili" style={{ height: `${(d.credit / max) * 100}%`, minHeight: d.credit ? 4 : 0 }} />
             <div className="w-1/2 rounded-t-md bg-leaf" style={{ height: `${(d.payment / max) * 100}%`, minHeight: d.payment ? 4 : 0 }} />
           </div>
-          <span className="text-[11px] font-semibold text-muted">{new Date(d.date + "T00:00").toLocaleDateString("en-IN", { weekday: "short" })}</span>
+          <span className="text-[11px] text-muted">{new Date(d.date + "T00:00").toLocaleDateString("en-IN", { weekday: "short" })}</span>
         </div>
       ))}
     </div>
@@ -110,15 +110,15 @@ function HisaabInner() {
 
   return (
     <div>
-      <PageHeader title={`📊 ${tr("todayHisaab")}`} subtitle={new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })} back="/more" />
+      <PageHeader title={`${tr("todayHisaab")}`} subtitle={new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })} back="/more" />
 
-      <div className="mx-4 flex flex-col items-center rounded-card bg-gradient-to-br from-brand-soft to-card p-4 shadow-sticker">
+      <div className="mx-4 flex flex-col items-center rounded-card border border-line bg-card p-4 shadow-card">
         <DostOrb state={speaker.speaking ? "speaking" : loading ? "thinking" : "idle"} level={speaker.level} size={110} />
         <button
           type="button"
           onClick={() => (speaker.speaking ? speaker.stop() : void play())}
           disabled={loading}
-          className="mt-2 flex min-h-14 items-center gap-2 rounded-full bg-brand px-8 text-xl font-extrabold text-brand-ink shadow-sticker active:scale-95 disabled:opacity-60"
+          className="mt-2 flex min-h-14 items-center gap-2 rounded-full bg-brand px-8 text-xl font-semibold text-brand-ink shadow-card active:scale-95 disabled:opacity-60"
         >
           {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : speaker.speaking ? <Square className="h-5 w-5 fill-current" /> : <Play className="h-6 w-6 fill-current" />}
           {tr("listen")}
@@ -133,16 +133,16 @@ function HisaabInner() {
       </div>
 
       <Card className="mx-4 mt-3 text-center">
-        <p className="text-sm font-semibold text-muted">Net cash in</p>
-        <p className="tabular text-4xl font-extrabold text-leaf">
+        <p className="text-sm text-muted">Net cash in</p>
+        <p className="tabular text-4xl font-semibold text-leaf">
           <CountUp paise={s.netCashInPaise} />
         </p>
       </Card>
 
       <Card className="mx-4 mt-3">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-extrabold">Pichhle 7 din</h2>
-          <span className="flex items-center gap-3 text-xs font-semibold text-muted">
+          <h2 className="font-semibold">Pichhle 7 din</h2>
+          <span className="flex items-center gap-3 text-xs text-muted">
             <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-chili" />udhaar</span>
             <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-leaf" />jama</span>
           </span>
@@ -152,13 +152,13 @@ function HisaabInner() {
 
       {s.topOwing.length > 0 && (
         <Card className="mx-4 mt-3">
-          <h2 className="mb-2 font-extrabold">Sabse zyada baaki</h2>
+          <h2 className="mb-2 font-semibold">Sabse zyada baaki</h2>
           <ul className="space-y-2">
             {s.topOwing.map((c) => (
               <li key={c.id} className="flex items-center gap-3">
                 <Avatar name={c.name} size={36} />
-                <span className="flex-1 truncate font-bold">{c.name}</span>
-                <span className="tabular font-extrabold text-chili">{formatINR(c.balance)}</span>
+                <span className="flex-1 truncate font-semibold">{c.name}</span>
+                <span className="tabular font-semibold text-chili">{formatINR(c.balance)}</span>
               </li>
             ))}
           </ul>

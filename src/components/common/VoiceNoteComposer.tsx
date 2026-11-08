@@ -74,7 +74,7 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
   const share = async () => {
     if (!audio || !msg) return;
     const r = await shareVoiceNote(audio, msg.displayText, filename);
-    if (r !== "cancelled") toast.success(r === "shared" ? "Bhej diya! ✅" : "Audio download ho gaya — WhatsApp par bhejein");
+    if (r !== "cancelled") toast.success(r === "shared" ? "Bhej diya!" : "Audio download ho gaya — WhatsApp par bhejein");
   };
 
   return (
@@ -88,7 +88,7 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
       >
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line" />
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold">{title}</h2>
+          <h2 className="text-xl font-semibold">{title}</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 text-muted">
             <X className="h-6 w-6" />
           </button>
@@ -101,7 +101,7 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
           id="vn-lang"
           value={language}
           onChange={(e) => setLanguage(e.target.value as LangCode)}
-          className="mb-3 min-h-12 w-full rounded-2xl border border-line bg-card px-3 text-lg font-bold"
+          className="mb-3 min-h-12 w-full rounded-2xl border border-line bg-card px-3 text-lg font-semibold"
         >
           {LANGUAGE_LIST.map((l) => (
             <option key={l.code} value={l.code}>
@@ -113,8 +113,8 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
         {allowMyVoice && (
           <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl bg-card p-1" role="radiogroup" aria-label="Voice">
             {[
-              { v: true, label: "🗣️ Meri awaaz", disabled: !shop.cloneEmbedding },
-              { v: false, label: `🤖 ${shop.assistantVoice}`, disabled: false },
+              { v: true, label: "Meri awaaz", disabled: !shop.cloneEmbedding },
+              { v: false, label: `${shop.assistantVoice}`, disabled: false },
             ].map((o) => (
               <button
                 key={String(o.v)}
@@ -123,7 +123,7 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
                 aria-checked={useMyVoice === o.v}
                 disabled={o.disabled}
                 onClick={() => setUseMyVoice(o.v)}
-                className={`min-h-11 rounded-xl text-sm font-bold ${useMyVoice === o.v ? "bg-brand text-brand-ink shadow-sticker" : "text-muted"} disabled:opacity-40`}
+                className={`min-h-11 rounded-xl text-sm font-semibold ${useMyVoice === o.v ? "bg-brand text-brand-ink shadow-card" : "text-muted"} disabled:opacity-40`}
               >
                 {o.label}
               </button>
@@ -132,11 +132,11 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
         )}
         {allowMyVoice && !shop.cloneEmbedding && <p className="-mt-1 mb-3 text-xs text-muted">Apni awaaz Settings mein record karein — reminder aapki awaaz mein jaayega.</p>}
 
-        <div className="rounded-card border border-line bg-card p-4 shadow-sticker">
+        <div className="rounded-card border border-line bg-card p-4 shadow-card">
           {busy === "compose" || !msg ? (
             <div className="flex items-center gap-3 py-4">
               <DostOrb state="thinking" size={56} />
-              <p className="font-bold text-muted">Message likh raha hoon…</p>
+              <p className="font-semibold text-muted">Message likh raha hoon…</p>
             </div>
           ) : (
             <>
@@ -148,14 +148,14 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
           )}
         </div>
 
-        {fallback && <p className="mt-2 text-xs font-semibold text-muted">ℹ️ Is bhasha mein assistant ki awaaz use hui.</p>}
+        {fallback && <p className="mt-2 text-xs text-muted">ℹIs bhasha mein assistant ki awaaz use hui.</p>}
 
         <div className="mt-4 flex gap-2">
           <button
             type="button"
             disabled={!audio}
             onClick={() => (speaker.speaking ? speaker.stop() : audio && void speaker.play(audio))}
-            className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-line bg-card text-lg font-bold disabled:opacity-50"
+            className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-2xl border border-line bg-card text-lg font-semibold disabled:opacity-50"
           >
             {busy === "voice" ? <Loader2 className="h-5 w-5 animate-spin" /> : speaker.speaking ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             Suno
@@ -173,7 +173,7 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
             type="button"
             disabled={!audio}
             onClick={() => void share()}
-            className="flex min-h-14 flex-[2] items-center justify-center gap-2 rounded-2xl bg-[#25D366] text-lg font-extrabold text-white shadow-sticker disabled:opacity-50"
+            className="flex min-h-14 flex-[2] items-center justify-center gap-2 rounded-2xl bg-[#25D366] text-lg font-semibold text-white shadow-card disabled:opacity-50"
           >
             <Share2 className="h-5 w-5" /> WhatsApp
           </button>

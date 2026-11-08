@@ -39,11 +39,11 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
       )}
 
       <motion.div
-        className={`relative overflow-hidden rounded-full shadow-sticker ${state === "idle" ? "animate-breathe" : ""}`}
+        className={`relative overflow-hidden rounded-full shadow-card ${state === "idle" ? "animate-breathe" : ""}`}
         style={{
           width: size * 0.82,
           height: size * 0.82,
-          background: "radial-gradient(circle at 35% 30%, #fde68a 0%, #fbbf24 38%, #f59e0b 70%, #d97706 100%)",
+          background: "radial-gradient(circle at 32% 26%, #9db8ff 0%, #5d86ff 36%, #3b6cff 66%, #1f3bb8 100%)",
         }}
         animate={
           state === "happy"
@@ -60,19 +60,19 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
 
         <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden>
           {/* cheeks */}
-          <circle cx="27" cy="60" r="7" fill="#fb7185" opacity="0.35" />
-          <circle cx="73" cy="60" r="7" fill="#fb7185" opacity="0.35" />
+          <circle cx="27" cy="60" r="7" fill="#ffffff" opacity="0.18" />
+          <circle cx="73" cy="60" r="7" fill="#ffffff" opacity="0.18" />
           {/* eyes */}
           <g className={state === "idle" || state === "listening" ? "animate-blink" : ""} style={{ transformBox: "fill-box" }}>
             {state === "happy" ? (
               <>
-                <path d="M30 46 q6 -7 12 0" stroke="#7c2d12" strokeWidth="4" fill="none" strokeLinecap="round" />
-                <path d="M58 46 q6 -7 12 0" stroke="#7c2d12" strokeWidth="4" fill="none" strokeLinecap="round" />
+                <path d="M30 46 q6 -7 12 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
+                <path d="M58 46 q6 -7 12 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
               </>
             ) : (
               <>
-                <ellipse cx="36" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#7c2d12" />
-                <ellipse cx="64" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#7c2d12" />
+                <ellipse cx="36" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#0a1240" />
+                <ellipse cx="64" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#0a1240" />
                 <circle cx="38" cy={43 + eyeY} r="1.6" fill="#fff" />
                 <circle cx="66" cy={43 + eyeY} r="1.6" fill="#fff" />
               </>
@@ -80,11 +80,11 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
           </g>
           {/* mouth */}
           {state === "sad" ? (
-            <path d="M40 70 q10 -8 20 0" stroke="#7c2d12" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M40 70 q10 -8 20 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
           ) : state === "speaking" || state === "happy" ? (
-            <ellipse cx="50" cy="66" rx="9" ry={mouthOpen / 2 + 2} fill="#7c2d12" />
+            <ellipse cx="50" cy="66" rx="9" ry={mouthOpen / 2 + 2} fill="#0a1240" />
           ) : (
-            <path d="M40 64 q10 9 20 0" stroke="#7c2d12" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M40 64 q10 9 20 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
           )}
         </svg>
       </motion.div>
@@ -97,11 +97,7 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
         </div>
       )}
 
-      {state === "happy" && (
-        <span className="absolute -right-1 top-0 text-2xl" aria-hidden>
-          ✨
-        </span>
-      )}
+      {state === "happy" && <span className="absolute inset-0 animate-ring rounded-full border-2 border-leaf" aria-hidden />}
     </div>
   );
 }

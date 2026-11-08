@@ -54,7 +54,7 @@ export default function OnboardingPage() {
             <>
               <div className="flex flex-col items-center text-center">
                 <DostOrb state="happy" size={110} />
-                <h1 className="mt-2 text-3xl font-extrabold">Dukaan Dost</h1>
+                <h1 className="mt-2 text-3xl font-semibold">Dukaan Dost</h1>
                 <p className="text-muted">Apni bhasha chuniye · Choose your language</p>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -65,12 +65,12 @@ export default function OnboardingPage() {
                     onClick={() => setLanguage(l.code)}
                     aria-pressed={language === l.code}
                     lang={l.code.split("-")[0]}
-                    className={`min-h-20 rounded-card border-2 p-3 text-center shadow-sticker transition-all active:scale-95 ${
+                    className={`min-h-20 rounded-card border-2 p-3 text-center shadow-card transition-all active:scale-95 ${
                       language === l.code ? "border-brand bg-brand-soft" : "border-line bg-card"
                     }`}
                   >
-                    <span className="block text-2xl font-extrabold">{l.nativeName}</span>
-                    <span className="block text-xs font-semibold text-muted">{l.englishName}</span>
+                    <span className="block text-2xl font-semibold">{l.nativeName}</span>
+                    <span className="block text-xs text-muted">{l.englishName}</span>
                   </button>
                 ))}
               </div>
@@ -79,21 +79,21 @@ export default function OnboardingPage() {
 
           {step === 1 && (
             <>
-              <h1 className="text-3xl font-extrabold">{LANGUAGES[language].greeting}! 👋</h1>
+              <h1 className="text-3xl font-semibold">{LANGUAGES[language].greeting}!</h1>
               <p className="mb-5 text-muted">Dukaan ke baare mein batayein</p>
-              <label className="mb-1 block text-sm font-bold" htmlFor="ob-shop">Dukaan ka naam</label>
-              <input id="ob-shop" value={shopName} onChange={(e) => setShopName(e.target.value)} placeholder="Shree Ganesh Kirana" className="mb-4 min-h-14 w-full rounded-2xl border border-line bg-card px-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand" />
-              <label className="mb-1 block text-sm font-bold" htmlFor="ob-owner">Aapka naam</label>
-              <input id="ob-owner" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="Ramesh" className="min-h-14 w-full rounded-2xl border border-line bg-card px-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand" />
+              <label className="mb-1 block text-sm font-semibold" htmlFor="ob-shop">Dukaan ka naam</label>
+              <input id="ob-shop" value={shopName} onChange={(e) => setShopName(e.target.value)} placeholder="Shree Ganesh Kirana" className="mb-4 min-h-14 w-full rounded-2xl border border-line bg-card px-4 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-brand" />
+              <label className="mb-1 block text-sm font-semibold" htmlFor="ob-owner">Aapka naam</label>
+              <input id="ob-owner" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="Ramesh" className="min-h-14 w-full rounded-2xl border border-line bg-card px-4 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-brand" />
             </>
           )}
 
           {step === 2 && (
             <>
-              <h1 className="text-3xl font-extrabold">Apni awaaz 🗣️</h1>
+              <h1 className="text-3xl font-semibold">Apni awaaz</h1>
               <p className="mb-4 text-muted">Ek line padhiye — reminder aapki hi awaaz mein customers ko jaayenge. (Optional)</p>
               {embedding ? (
-                <div className="rounded-card bg-leaf-soft p-5 text-center font-extrabold text-leaf">✅ Awaaz save ho gayi!</div>
+                <div className="rounded-card bg-leaf-soft p-5 text-center font-semibold text-leaf">Awaaz save ho gayi!</div>
               ) : (
                 <CloneRecorder language={language} onDone={setEmbedding} />
               )}
@@ -102,12 +102,12 @@ export default function OnboardingPage() {
 
           {step === 3 && (
             <>
-              <h1 className="text-3xl font-extrabold">Shuru karein 🚀</h1>
+              <h1 className="text-3xl font-semibold">Shuru karein</h1>
               <p className="mb-5 text-muted">Demo data (nakli customers aur saamaan) ke saath try karein, ya khaali shuru karein.</p>
-              <button type="button" disabled={busy} onClick={() => void finish(true)} className="mb-3 min-h-16 w-full rounded-card bg-brand text-xl font-extrabold text-brand-ink shadow-sticker active:scale-[0.98] disabled:opacity-60">
-                ✨ Demo dukaan load karein
+              <button type="button" disabled={busy} onClick={() => void finish(true)} className="mb-3 min-h-16 w-full rounded-card bg-brand text-xl font-semibold text-brand-ink shadow-card active:scale-[0.98] disabled:opacity-60">
+                Demo dukaan load karein
               </button>
-              <button type="button" disabled={busy} onClick={() => void finish(false)} className="min-h-16 w-full rounded-card border border-line bg-card text-lg font-bold active:scale-[0.98] disabled:opacity-60">
+              <button type="button" disabled={busy} onClick={() => void finish(false)} className="min-h-16 w-full rounded-card border border-line bg-card text-lg font-semibold active:scale-[0.98] disabled:opacity-60">
                 Khaali shuru karein
               </button>
             </>
@@ -118,11 +118,11 @@ export default function OnboardingPage() {
       {step < 3 && (
         <div className="mt-6 flex gap-3">
           {step === 2 && !embedding && (
-            <button type="button" onClick={() => setStep(3)} className="min-h-14 flex-1 rounded-2xl border border-line bg-card font-bold text-muted">
+            <button type="button" onClick={() => setStep(3)} className="min-h-14 flex-1 rounded-2xl border border-line bg-card font-semibold text-muted">
               Skip
             </button>
           )}
-          <button type="button" onClick={() => setStep(step + 1)} className="flex min-h-14 flex-[2] items-center justify-center gap-2 rounded-2xl bg-ink text-lg font-extrabold text-bg shadow-sticker active:scale-[0.98]">
+          <button type="button" onClick={() => setStep(step + 1)} className="flex min-h-14 flex-[2] items-center justify-center gap-2 rounded-2xl bg-ink text-lg font-semibold text-bg shadow-card active:scale-[0.98]">
             Aage <ArrowRight className="h-5 w-5" />
           </button>
         </div>

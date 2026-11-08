@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "motion/react";
-import { Bell, HandCoins, Mic } from "@/components/common/icons";
+import { Bell, HandCoins, IconTile, Mic } from "@/components/common/icons";
 import { Avatar, BalancePill, Card, EmptyState, PageHeader } from "@/components/common/ui";
 import { VoiceNoteComposer } from "@/components/common/VoiceNoteComposer";
 import { useVoice } from "@/components/voice/VoiceProvider";
@@ -68,7 +68,7 @@ export default function CustomerPage() {
 
       <Card className="mx-4 flex flex-col items-center text-center">
         <Avatar name={c.name} size={72} />
-        <p className="mt-3 text-sm font-semibold text-muted">{c.balance > 0 ? tr("owes") : c.balance < 0 ? tr("advance") : tr("settled")}</p>
+        <p className="mt-3 text-sm text-muted">{c.balance > 0 ? tr("owes") : c.balance < 0 ? tr("advance") : tr("settled")}</p>
         <motion.div key={c.balance} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mt-1">
           <BalancePill balance={c.balance} size="lg" />
         </motion.div>
@@ -77,14 +77,14 @@ export default function CustomerPage() {
             type="button"
             onClick={() => setRemind(true)}
             disabled={c.balance <= 0}
-            className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-indigo text-base font-extrabold text-white shadow-sticker disabled:opacity-40"
+            className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-indigo text-base font-semibold text-white shadow-card disabled:opacity-40"
           >
             <Bell className="h-5 w-5" /> {tr("remind")}
           </button>
           <button
             type="button"
             onClick={() => voice.open()}
-            className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-leaf text-base font-extrabold text-white shadow-sticker"
+            className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-leaf text-base font-semibold text-white shadow-card"
           >
             <HandCoins className="h-5 w-5" /> {tr("paymentReceived")}
           </button>
@@ -101,32 +101,30 @@ export default function CustomerPage() {
         <div className="mx-4 mt-5 space-y-4">
           {groups.map(([day, entries]) => (
             <section key={day}>
-              <h2 className="mb-2 text-sm font-extrabold uppercase tracking-wide text-muted">{day}</h2>
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">{day}</h2>
               <ul className="space-y-2">
                 {entries.map((e) => (
                   <li key={e.id}>
                     <button
                       type="button"
                       onClick={() => setOpen(open === e.id ? null : e.id)}
-                      className="w-full rounded-2xl border border-line bg-card px-4 py-3 text-left shadow-sticker"
+                      className="w-full rounded-2xl border border-line bg-card px-4 py-3 text-left shadow-card"
                       aria-expanded={open === e.id}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl" aria-hidden>
-                          {e.type === "credit" ? "📒" : "💰"}
-                        </span>
+                        <IconTile icon={e.type === "credit" ? "credit" : "collected"} tone={e.type === "credit" ? "chili" : "leaf"} />
                         <div className="min-w-0 flex-1">
-                          <p className="font-bold">{e.type === "credit" ? "Udhaar" : "Jama"}</p>
-                          <p className="truncate text-xs font-semibold text-muted">
+                          <p className="font-semibold">{e.type === "credit" ? "Udhaar" : "Jama"}</p>
+                          <p className="truncate text-xs text-muted">
                             {e.items.length ? e.items.map((i) => `${i.qty ?? ""} ${i.unit !== "unknown" ? i.unit : ""} ${i.name}`.trim()).join(", ") : new Date(e.createdAt).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}
                           </p>
                         </div>
-                        <span className={`tabular text-lg font-extrabold ${e.type === "credit" ? "text-chili" : "text-leaf"}`}>
+                        <span className={`tabular text-lg font-semibold ${e.type === "credit" ? "text-chili" : "text-leaf"}`}>
                           {e.type === "credit" ? "+" : "−"}
                           {formatINR(e.amount)}
                         </span>
                       </div>
-                      {open === e.id && e.transcript && <p className="mt-2 rounded-xl bg-bg px-3 py-2 text-sm text-muted">🎙️ “{e.transcript}”</p>}
+                      {open === e.id && e.transcript && <p className="mt-2 rounded-xl bg-bg px-3 py-2 text-sm text-muted">“{e.transcript}”</p>}
                     </button>
                   </li>
                 ))}
@@ -140,7 +138,7 @@ export default function CustomerPage() {
         <VoiceNoteComposer
           shop={shop}
           kind="reminder"
-          title={`🔔 ${tr("remind")} · ${c.name}`}
+          title={`${tr("remind")} · ${c.name}`}
           defaultLanguage={c.language}
           data={{ customerName: c.name, amountRupees: paiseToRupees(c.balance), lastEntryDate: data.entries[0]?.createdAt.slice(0, 10) ?? null }}
           filename={`reminder-${c.name.replace(/\s+/g, "-").toLowerCase()}`}

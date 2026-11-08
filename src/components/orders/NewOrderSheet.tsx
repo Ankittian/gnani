@@ -61,7 +61,7 @@ export function NewOrderSheet({ shop, onClose }: { shop: Shop; onClose: () => vo
       >
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line" />
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold">🛵 Naya voice order</h2>
+          <h2 className="text-xl font-semibold">Naya voice order</h2>
           {!busy && (
             <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 text-muted">
               <X className="h-6 w-6" />
@@ -73,14 +73,14 @@ export function NewOrderSheet({ shop, onClose }: { shop: Shop; onClose: () => vo
         {busy || progress.stage === "error" ? (
           <div className="flex flex-col items-center py-4 text-center">
             <DostOrb state={progress.stage === "error" ? "sad" : "thinking"} size={110} />
-            <p className="mt-3 text-lg font-bold">
+            <p className="mt-3 text-lg font-semibold">
               {progress.stage === "error" ? progress.error : STAGE_TEXT[progress.stage]}
               {progress.stage === "transcribing" && progress.chunks > 1 && ` (${progress.chunk}/${progress.chunks})`}
             </p>
-            {progress.language && <span className="mt-1 rounded-full bg-indigo-soft px-3 py-0.5 text-sm font-bold text-indigo">{LANGUAGES[progress.language].nativeName}</span>}
+            {progress.language && <span className="mt-1 rounded-full bg-indigo-soft px-3 py-0.5 text-sm font-semibold text-indigo">{LANGUAGES[progress.language].nativeName}</span>}
             {progress.transcript && <p className="mt-3 max-h-32 overflow-y-auto rounded-2xl bg-card px-4 py-3 text-left text-sm">“{progress.transcript}”</p>}
             {progress.stage === "error" && (
-              <button type="button" onClick={reset} className="mt-4 rounded-full bg-brand px-5 py-3 font-extrabold text-brand-ink shadow-sticker">
+              <button type="button" onClick={reset} className="mt-4 rounded-full bg-brand px-5 py-3 font-semibold text-brand-ink shadow-card">
                 Dobara try karein
               </button>
             )}
@@ -88,14 +88,14 @@ export function NewOrderSheet({ shop, onClose }: { shop: Shop; onClose: () => vo
         ) : recorder.status === "recording" ? (
           <div className="flex flex-col items-center py-4">
             <DostOrb state="listening" level={recorder.level} size={120} />
-            <p className="tabular mt-2 font-bold text-muted">{Math.floor(recorder.elapsed)}s / 120s</p>
+            <p className="tabular mt-2 font-semibold text-muted">{Math.floor(recorder.elapsed)}s / 120s</p>
             <button
               type="button"
               onClick={async () => {
                 const r = await recorder.stop();
                 if (r) await go(r.samples);
               }}
-              className="mt-3 flex min-h-12 items-center gap-2 rounded-full bg-chili px-6 font-bold text-white shadow-sticker"
+              className="mt-3 flex min-h-12 items-center gap-2 rounded-full bg-chili px-6 font-semibold text-white shadow-card"
             >
               <Square className="h-4 w-4 fill-current" /> Done
             </button>
@@ -106,14 +106,14 @@ export function NewOrderSheet({ shop, onClose }: { shop: Shop; onClose: () => vo
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-card border border-line bg-card font-extrabold shadow-sticker"
+                className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-card border border-line bg-card font-semibold shadow-card"
               >
                 <FileAudio className="h-8 w-8 text-indigo" /> Audio file
               </button>
               <button
                 type="button"
                 onClick={() => void recorder.start()}
-                className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-card border border-line bg-card font-extrabold shadow-sticker"
+                className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-card border border-line bg-card font-semibold shadow-card"
               >
                 <Mic className="h-8 w-8 text-brand-strong" /> Record
               </button>
@@ -129,14 +129,14 @@ export function NewOrderSheet({ shop, onClose }: { shop: Shop; onClose: () => vo
                 e.target.value = "";
               }}
             />
-            <h3 className="mb-2 mt-5 text-sm font-extrabold uppercase tracking-wide text-muted">Sample try karein</h3>
+            <h3 className="mb-2 mt-5 text-sm font-semibold uppercase tracking-wide text-muted">Sample try karein</h3>
             <div className="grid gap-2">
               {SAMPLE_ORDERS.map((s) => (
                 <button
                   key={s.file}
                   type="button"
                   onClick={() => void sample(s.file)}
-                  className="flex min-h-12 items-center gap-3 rounded-2xl border border-line bg-card px-4 text-left font-bold"
+                  className="flex min-h-12 items-center gap-3 rounded-2xl border border-line bg-card px-4 text-left font-semibold"
                 >
                   <span aria-hidden>{s.flag}</span> {s.label}
                 </button>

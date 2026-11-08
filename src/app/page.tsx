@@ -6,7 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { AnimatePresence, motion } from "motion/react";
 import { IconTile, Settings, type IconKey } from "@/components/common/icons";
 import { DostOrb } from "@/components/orb/DostOrb";
-import { Avatar, ModuleTile, StatChip, timeAgo } from "@/components/common/ui";
+import { Avatar, ModuleTile, timeAgo } from "@/components/common/ui";
 import { useVoice } from "@/components/voice/VoiceProvider";
 import { useShop } from "@/hooks/useShop";
 import { getDb } from "@/lib/db/schema";
@@ -19,11 +19,6 @@ const HINTS: Record<string, string[]> = {
   "hi-IN": ["Sharma ji ne 340 ka saamaan udhaar liya", "Fatima ji ne 500 diye", "Maggi khatam ho gaya", "Suresh ka kitna baaki hai?", "Aaj ka hisaab sunao"],
   "en-IN": ["Joseph paid 500 rupees", "Sharma ji took 2 kg rice on credit, 140 rupees", "Parle-G only 2 packets left", "How much does Murugan owe?"],
 };
-
-function greetingKey(): "greetingMorning" | "greetingAfternoon" | "greetingEvening" {
-  const h = new Date().getHours();
-  return h < 12 ? "greetingMorning" : h < 17 ? "greetingAfternoon" : "greetingEvening";
-}
 
 interface Activity {
   id: string;
@@ -92,53 +87,64 @@ export default function HomePage() {
 
   return (
     <div className="px-4 pt-5">
-      <header className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-semibold text-muted">{shop.name}</p>
-          <h1 className="text-3xl font-extrabold leading-tight">
-            {LANGUAGES[lang].greeting}, {shop.ownerName} 👋
+      <header className="flex items-center gap-3">
+        <Avatar name={shop.ownerName || shop.name} size={44} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs text-muted">{shop.name}</p>
+          <h1 className="truncate text-xl font-semibold leading-tight tracking-tight">
+            {LANGUAGES[lang].greeting}, {shop.ownerName}
           </h1>
-          <p className="text-sm font-semibold text-muted">{tr(greetingKey())}</p>
         </div>
-        <Link href="/settings" aria-label={tr("settings")} className="rounded-full p-2 text-muted transition-colors hover:bg-brand-soft hover:text-brand-strong">
-          <Settings className="h-6 w-6" />
+        <Link href="/settings" aria-label={tr("settings")} className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-card text-muted transition-colors hover:text-ink">
+          <Settings className="h-5 w-5" />
         </Link>
       </header>
+
+      {/* Hero: today's sales — the one number to notice first */}
+      <section aria-label={tr("todayHisaab")} className="relative mt-5 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-[#2a56ff] via-[#2347d8] to-[#16206b] p-5 text-white shadow-[0_24px_48px_-24px_var(--glow)]">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+        <p className="relative text-sm text-white/70">{tr("statSales")}</p>
+        <p className="tabular relative mt-1 text-[40px] font-semibold leading-none tracking-tight">{formatINR(summary?.salesPaise ?? 0)}</p>
+        <div className="relative mt-5 grid grid-cols-3 gap-2">
+          {[
+            { label: tr("statCreditGiven"), value: formatINR(summary?.creditGivenPaise ?? 0) },
+            { label: tr("statCollected"), value: formatINR(summary?.paymentsPaise ?? 0) },
+            { label: tr("statLowStock"), value: String(lowCount) },
+          ].map((s) => (
+            <div key={s.label} className="rounded-2xl bg-white/10 px-3 py-2.5 backdrop-blur">
+              <p className="truncate text-[11px] text-white/65">{s.label}</p>
+              <p className="tabular mt-0.5 truncate text-base font-semibold">{s.value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Dost + rotating try-saying hint */}
       <button
         type="button"
         onClick={() => voice.open()}
-        className="mt-4 flex w-full items-center gap-3 rounded-card border border-brand/20 bg-gradient-to-br from-brand-soft via-card to-card p-3 text-left shadow-sticker transition-transform active:scale-[0.99]"
+        className="mt-3 flex w-full items-center gap-3 rounded-card border border-line bg-card p-3 pr-4 text-left shadow-card transition-transform active:scale-[0.99]"
       >
-        <DostOrb state="idle" size={84} />
+        <DostOrb state="idle" size={64} />
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-strong">{tr("trySaying")}</p>
+          <p className="text-[11px] font-medium uppercase tracking-wider text-brand-strong">{tr("trySaying")}</p>
           <AnimatePresence mode="wait">
             <motion.p
               key={hintIdx}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="text-lg font-bold leading-snug"
+              className="text-[15px] font-medium leading-snug"
             >
               “{hints[hintIdx % hints.length]}”
             </motion.p>
           </AnimatePresence>
-          <p className="mt-0.5 text-sm font-semibold text-muted">🎙️ {tr("tapToSpeak")}</p>
+          <p className="mt-0.5 text-xs text-muted">{tr("tapToSpeak")}</p>
         </div>
       </button>
 
-      {/* Today stats */}
-      <section className="mt-4 grid grid-cols-2 gap-3" aria-label={tr("todayHisaab")}>
-        <StatChip icon="sales" label={tr("statSales")} value={formatINR(summary?.salesPaise ?? 0)} tone="leaf" />
-        <StatChip icon="credit" label={tr("statCreditGiven")} value={formatINR(summary?.creditGivenPaise ?? 0)} tone="chili" />
-        <StatChip icon="collected" label={tr("statCollected")} value={formatINR(summary?.paymentsPaise ?? 0)} tone="leaf" />
-        <StatChip icon="lowStock" label={tr("statLowStock")} value={String(lowCount)} tone="brand" />
-      </section>
-
       {/* Modules */}
-      <section className="mt-4 grid grid-cols-2 gap-3">
+      <section className="mt-3 grid grid-cols-2 gap-3">
         <ModuleTile href="/khata" icon="khata" tone="brand" label={tr("modKhata")} sub={lang !== "en-IN" ? "Khata" : null} />
         <ModuleTile href="/stock" icon="stock" tone="leaf" label={tr("modStock")} sub={lang !== "en-IN" ? "Stock" : null} badge={lowCount || undefined} />
         <ModuleTile href="/orders" icon="orders" tone="indigo" label={tr("modOrders")} sub={lang !== "en-IN" ? "Orders" : null} badge={newOrders || undefined} />
@@ -147,25 +153,25 @@ export default function HomePage() {
 
       {/* Recent activity */}
       <section className="mt-6">
-        <h2 className="mb-2 text-lg font-extrabold">{tr("recent")}</h2>
+        <h2 className="mb-3 text-base font-semibold">{tr("recent")}</h2>
         {activity.length === 0 ? (
-          <p className="rounded-card border border-dashed border-line px-4 py-6 text-center text-muted">Abhi kuch nahi — mic dabake shuru karein 🎙️</p>
+          <p className="rounded-card border border-dashed border-line px-4 py-6 text-center text-muted">Abhi kuch nahi — mic dabake shuru karein</p>
         ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-sticker">
+          <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-card">
             {activity.map((a) => (
               <li key={a.id} className="flex items-center gap-3 px-4 py-3">
                 {a.emoji ? (
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-line/50 text-2xl" aria-hidden>
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-line/70 text-2xl" aria-hidden>
                     {a.emoji}
                   </span>
                 ) : (
                   <IconTile icon={a.icon} tone={a.tone ?? "muted"} />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-bold">{a.title}</p>
-                  <p className="text-xs font-semibold text-muted">{timeAgo(a.at)}</p>
+                  <p className="truncate font-semibold">{a.title}</p>
+                  <p className="text-xs text-muted">{timeAgo(a.at)}</p>
                 </div>
-                {a.amount && <span className={`tabular font-extrabold ${a.tone === "chili" ? "text-chili" : "text-leaf"}`}>{a.amount}</span>}
+                {a.amount && <span className={`tabular font-semibold ${a.tone === "chili" ? "text-chili" : "text-leaf"}`}>{a.amount}</span>}
               </li>
             ))}
           </ul>
@@ -174,13 +180,13 @@ export default function HomePage() {
 
       {summary && summary.topOwing.length > 0 && (
         <section className="mt-6">
-          <h2 className="mb-2 text-lg font-extrabold">Sabse zyada baaki</h2>
+          <h2 className="mb-3 text-base font-semibold">Sabse zyada baaki</h2>
           <div className="flex gap-3 overflow-x-auto pb-1">
             {summary.topOwing.map((c) => (
-              <Link key={c.id} href={`/khata/${c.id}`} className="flex min-w-36 flex-col items-center gap-1 rounded-card border border-line bg-card p-3 shadow-sticker">
+              <Link key={c.id} href={`/khata/${c.id}`} className="flex min-w-36 flex-col items-center gap-1 rounded-card border border-line bg-card p-3 shadow-card">
                 <Avatar name={c.name} />
-                <span className="max-w-full truncate text-sm font-bold">{c.name}</span>
-                <span className="tabular font-extrabold text-chili">{formatINR(c.balance)}</span>
+                <span className="max-w-full truncate text-sm font-semibold">{c.name}</span>
+                <span className="tabular font-semibold text-chili">{formatINR(c.balance)}</span>
               </Link>
             ))}
           </div>

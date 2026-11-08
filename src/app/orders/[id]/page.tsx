@@ -45,14 +45,14 @@ export default function OrderPage() {
       <PageHeader title={o.customerName ?? "Customer order"} subtitle={`${LANGUAGES[o.language]?.nativeName} · ${Math.round(o.audioDurationSec)}s voice note`} back="/orders" />
 
       <div className="mx-4 flex items-center justify-between">
-        <span className={`rounded-full px-3 py-1 font-bold ${st.cls}`}>
+        <span className={`rounded-full px-3 py-1 font-semibold ${st.cls}`}>
           <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-current align-middle" aria-hidden />{st.label}
         </span>
-        {total != null && <span className="tabular text-2xl font-extrabold">{formatINR(total)}</span>}
+        {total != null && <span className="tabular text-2xl font-semibold">{formatINR(total)}</span>}
       </div>
 
       <Card className="mx-4 mt-3">
-        <h2 className="mb-2 text-sm font-extrabold uppercase tracking-wide text-muted">Packing list</h2>
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">Packing list</h2>
         <ul className="space-y-2">
           {o.items.map((it, i) => {
             const p = it.productId ? productById.get(it.productId) : undefined;
@@ -73,8 +73,8 @@ export default function OrderPage() {
                   <span className="text-2xl" aria-hidden>
                     {p?.emoji ?? "🛍️"}
                   </span>
-                  <span className={`flex-1 font-bold ${it.packed ? "text-muted line-through" : ""}`}>{it.name}</span>
-                  <span className="tabular font-extrabold">
+                  <span className={`flex-1 font-semibold ${it.packed ? "text-muted line-through" : ""}`}>{it.name}</span>
+                  <span className="tabular font-semibold">
                     {it.qty ?? ""} <span className="text-sm text-muted">{it.unit !== "unknown" ? it.unit : ""}</span>
                   </span>
                 </button>
@@ -82,7 +82,7 @@ export default function OrderPage() {
             );
           })}
         </ul>
-        {o.notes && <p className="mt-3 rounded-2xl bg-brand-soft px-3 py-2 text-sm font-semibold text-brand-ink">📝 {o.notes}</p>}
+        {o.notes && <p className="mt-3 rounded-2xl bg-brand-soft px-3 py-2 text-sm font-semibold text-brand-ink">{o.notes}</p>}
       </Card>
 
       <div className="mx-4 mt-4 grid gap-2">
@@ -91,9 +91,9 @@ export default function OrderPage() {
             type="button"
             onClick={() => void advance()}
             disabled={next === "packed" && !allPacked}
-            className="min-h-14 rounded-2xl bg-leaf text-lg font-extrabold text-white shadow-sticker disabled:opacity-50"
+            className="min-h-14 rounded-2xl bg-leaf text-lg font-semibold text-white shadow-card disabled:opacity-50"
           >
-            {next === "packed" ? `📦 ${tr("packed")}` : `✅ ${tr("delivered")}`}
+            {next === "packed" ? `${tr("packed")}` : `${tr("delivered")}`}
           </button>
         )}
         {o.status === "delivered" && o.customerId == null && total != null && <p className="text-center text-xs text-muted">Customer khate mein nahi hai — naam bolke udhaar likhein.</p>}
@@ -103,20 +103,20 @@ export default function OrderPage() {
             onClick={async () => {
               try {
                 await addLedgerFromOrder(getDb(), o.id);
-                toast.success("Khate mein jod diya 📒");
+                toast.success("Khate mein jod diya");
               } catch {
                 toast.error("Khate mein nahi jod paaye");
               }
             }}
-            className="min-h-14 rounded-2xl border border-line bg-card text-lg font-bold"
+            className="min-h-14 rounded-2xl border border-line bg-card text-lg font-semibold"
           >
-            📒 {tr("addToKhata")} · {formatINR(total)}
+            {tr("addToKhata")} · {formatINR(total)}
           </button>
         )}
       </div>
 
       <details className="mx-4 mt-4 rounded-2xl bg-card px-4 py-3 text-sm">
-        <summary className="cursor-pointer font-bold text-muted">🎙️ Original voice note text</summary>
+        <summary className="cursor-pointer font-semibold text-muted">Original voice note text</summary>
         <p className="mt-2 leading-relaxed">“{o.transcript}”</p>
       </details>
     </div>

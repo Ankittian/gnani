@@ -23,7 +23,7 @@ export function CloneRecorder({ language, onDone }: { language: LangCode; onDone
     setBusy(true);
     try {
       const e = await api.clone(new Blob([encodeWav(samples, rate)], { type: "audio/wav" }), "voice.wav");
-      toast.success("Aapki awaaz save ho gayi 🎉");
+      toast.success("Aapki awaaz save ho gayi");
       onDone(e);
     } catch (e) {
       toast.error(api.friendlyError(e).message);
@@ -36,11 +36,11 @@ export function CloneRecorder({ language, onDone }: { language: LangCode; onDone
 
   return (
     <div className="flex flex-col items-center text-center">
-      <p className="mb-3 rounded-2xl bg-card px-4 py-3 text-lg font-semibold leading-relaxed shadow-sticker" lang={language.split("-")[0]}>
+      <p className="mb-3 rounded-2xl bg-card px-4 py-3 text-lg font-semibold leading-relaxed shadow-card" lang={language.split("-")[0]}>
         {LANGUAGES[language].clonePrompt}
       </p>
       <DostOrb state={busy ? "thinking" : recording ? "listening" : "idle"} level={rec.level} size={96} />
-      {recording && <p className="tabular mt-1 font-bold text-muted">{Math.floor(rec.elapsed)}s</p>}
+      {recording && <p className="tabular mt-1 font-semibold text-muted">{Math.floor(rec.elapsed)}s</p>}
       <button
         type="button"
         disabled={busy}
@@ -50,7 +50,7 @@ export function CloneRecorder({ language, onDone }: { language: LangCode; onDone
             if (r) await upload(r.samples, r.sampleRate, r.durationSec);
           } else void rec.start();
         }}
-        className={`mt-3 flex min-h-14 items-center gap-2 rounded-full px-8 text-lg font-extrabold shadow-sticker active:scale-95 ${recording ? "bg-chili text-white" : "bg-brand text-brand-ink"}`}
+        className={`mt-3 flex min-h-14 items-center gap-2 rounded-full px-8 text-lg font-semibold shadow-card active:scale-95 ${recording ? "bg-chili text-white" : "bg-brand text-brand-ink"}`}
       >
         {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : recording ? <Square className="h-5 w-5 fill-current" /> : <Mic className="h-5 w-5" />}
         {busy ? "Ban rahi hai…" : recording ? "Done" : "Record karein"}

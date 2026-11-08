@@ -48,16 +48,16 @@ export default function StockPage() {
   return (
     <div>
       <PageHeader
-        title={`📦 ${tr("modStock")}`}
+        title={`${tr("modStock")}`}
         subtitle={`${counts.all} items`}
         right={
           <Link
             href="/stock/reorder"
-            className="relative flex min-h-11 items-center gap-1.5 rounded-full bg-brand px-4 font-extrabold text-brand-ink shadow-sticker"
+            className="relative flex min-h-11 items-center gap-1.5 rounded-full bg-brand px-4 font-semibold text-brand-ink shadow-card"
           >
             <ShoppingCart className="h-5 w-5" /> {tr("reorderList")}
             {reorderCount > 0 && (
-              <span className="absolute -right-1 -top-2 min-w-6 rounded-full bg-chili px-1.5 text-center text-xs font-extrabold leading-6 text-white">{reorderCount}</span>
+              <span className="absolute -right-1 -top-2 min-w-6 rounded-full bg-chili px-1.5 text-center text-xs font-semibold leading-6 text-white">{reorderCount}</span>
             )}
           </Link>
         }
@@ -67,8 +67,8 @@ export default function StockPage() {
         {(
           [
             ["all", `Sab (${counts.all})`],
-            ["low", `⚠️ Kam (${counts.low})`],
-            ["out", `🚫 Khatam (${counts.out})`],
+            ["low", `Kam (${counts.low})`],
+            ["out", `Khatam (${counts.out})`],
           ] as [Filter, string][]
         ).map(([f, label]) => (
           <button
@@ -77,7 +77,7 @@ export default function StockPage() {
             aria-selected={filter === f}
             type="button"
             onClick={() => setFilter(f)}
-            className={`min-h-11 shrink-0 rounded-full px-4 font-bold ${filter === f ? "bg-ink text-bg" : "border border-line bg-card text-muted"}`}
+            className={`min-h-11 shrink-0 rounded-full px-4 font-semibold ${filter === f ? "bg-ink text-bg" : "border border-line bg-card text-muted"}`}
           >
             {label}
           </button>
@@ -85,7 +85,7 @@ export default function StockPage() {
       </div>
 
       <button type="button" onClick={() => voice.open()} className="mx-4 mt-3 w-[calc(100%-2rem)] rounded-2xl border border-dashed border-brand bg-brand-soft px-4 py-3 text-left text-sm font-semibold text-brand-ink">
-        🎙️ Boliye: “Maggi khatam ho gaya, Parle-G sirf 2 packet bacha”
+        Boliye: “Maggi khatam ho gaya, Parle-G sirf 2 packet bacha”
       </button>
 
       {products && list.length === 0 ? (
@@ -93,19 +93,19 @@ export default function StockPage() {
       ) : (
         <ul className="mx-4 mt-3 grid grid-cols-2 gap-3">
           {list.map((p) => (
-            <li key={p.id} className={`rounded-card border bg-card p-3 shadow-sticker ${p.stockQty === 0 ? "border-chili/50" : "border-line"}`}>
+            <li key={p.id} className={`rounded-card border bg-card p-3 shadow-card ${p.stockQty === 0 ? "border-chili/50" : "border-line"}`}>
               <div className="flex items-start justify-between">
                 <span className="text-3xl" aria-hidden>
                   {p.emoji}
                 </span>
                 {p.stockQty === 0 ? (
-                  <span className="rounded-full bg-chili-soft px-2 py-0.5 text-xs font-extrabold text-chili">khatam</span>
+                  <span className="rounded-full bg-chili-soft px-2 py-0.5 text-xs font-semibold text-chili">khatam</span>
                 ) : isLow(p) ? (
-                  <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-extrabold text-brand-ink">kam</span>
+                  <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-ink">kam</span>
                 ) : null}
               </div>
-              <p className="mt-1 truncate font-extrabold">{p.name}</p>
-              <p className="text-xs font-semibold text-muted">{p.pricePaise != null ? `${formatINR(p.pricePaise)} / ${p.unit}` : p.unit}</p>
+              <p className="mt-1 truncate font-semibold">{p.name}</p>
+              <p className="text-xs text-muted">{p.pricePaise != null ? `${formatINR(p.pricePaise)} / ${p.unit}` : p.unit}</p>
               <div className="mt-2">
                 <StockBar p={p} />
               </div>
@@ -118,8 +118,8 @@ export default function StockPage() {
                 >
                   <Minus className="h-4 w-4" />
                 </button>
-                <span className="tabular text-lg font-extrabold">
-                  {p.stockQty} <span className="text-xs font-semibold text-muted">{p.unit}</span>
+                <span className="tabular text-lg font-semibold">
+                  {p.stockQty} <span className="text-xs text-muted">{p.unit}</span>
                 </span>
                 <button
                   type="button"

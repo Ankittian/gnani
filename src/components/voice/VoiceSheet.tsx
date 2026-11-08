@@ -31,6 +31,11 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
   const [text, setText] = useState("");
   const started = useRef(false);
 
+  const close = () => {
+    v.reset();
+    onClose();
+  };
+
   // Start listening as soon as the sheet opens (or run typed text).
   useEffect(() => {
     if (started.current || !shop) return;
@@ -50,25 +55,20 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const close = () => {
-    v.reset();
-    onClose();
-  };
-
   const phase = state.phase;
   const recording = phase === "recording";
   const micDenied = recorder.status === "error";
   const level = recording ? recorder.level : v.speakLevel;
   const remaining = Math.max(0, recorder.maxSec - recorder.elapsed);
   const status =
-    phase === "recording"
-      ? tr("listening")
-      : phase === "transcribing" || phase === "understanding" || phase === "committing"
-        ? tr("thinking")
-        : phase === "error"
-          ? state.error
-          : micDenied
-            ? "Mic permission chahiye — ya neeche likh dein 👇"
+    micDenied && !state.transcript && (phase === "recording" || phase === "idle")
+      ? "Mic permission chahiye — ya neeche likh dein 👇"
+      : phase === "recording"
+        ? tr("listening")
+        : phase === "transcribing" || phase === "understanding" || phase === "committing"
+          ? tr("thinking")
+          : phase === "error"
+            ? state.error
             : state.reply;
 
   const detected = state.detectedLanguage ? LANGUAGES[state.detectedLanguage] : null;

@@ -133,7 +133,9 @@ export async function commitAction(db: DukaanDB, action: Action, meta: CommitMet
       case "add_credit":
       case "record_payment": {
         const ref = action.customer!;
-        let { customer, ambiguous } = await findCustomer(db, ref);
+        const found = await findCustomer(db, ref);
+        let customer = found.customer;
+        const ambiguous = found.ambiguous;
         if (!customer) {
           if (ambiguous && !ref.isNew) throw new Error("ambiguous_customer");
           customer = await createCustomer(db, ref.name, meta.language);

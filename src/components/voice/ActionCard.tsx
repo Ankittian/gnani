@@ -37,6 +37,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
   useEffect(() => {
     if (!autoConfirm || busy) return;
     let left = AUTO_SECONDS;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCountdown(left);
     const id = setInterval(() => {
       left -= 1;

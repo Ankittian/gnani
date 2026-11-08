@@ -43,6 +43,7 @@ export default function CustomerPage() {
 
   useEffect(() => {
     if (search.get("remind") === "1" && data?.customer) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRemind(true);
       router.replace(`/khata/${id}`);
     }

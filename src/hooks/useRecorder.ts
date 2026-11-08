@@ -22,7 +22,9 @@ export function useRecorder({ maxSec = 25, onAutoStop }: { maxSec?: number; onAu
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const startedAt = useRef(0);
   const onAutoStopRef = useRef(onAutoStop);
-  onAutoStopRef.current = onAutoStop;
+  useEffect(() => {
+    onAutoStopRef.current = onAutoStop;
+  });
 
   const clearTimer = () => {
     if (timer.current) clearInterval(timer.current);

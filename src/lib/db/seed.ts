@@ -117,12 +117,16 @@ export async function seedDemo(db: DukaanDB, shopLanguage: LangCode, now = new D
   }));
   const balances = new Map<string, number>(CUSTOMERS.map(([cid]) => [cid, 0]));
 
-  const lineItems = (n: number): LineItem[] =>
-    Array.from({ length: n }, () => {
-      const p = pick(products);
+  const lineItems = (n: number): LineItem[] => {
+    const used = new Set<string>();
+    return Array.from({ length: n }, () => {
+      let p = pick(products);
+      while (used.has(p.id)) p = pick(products); // distinct products per basket
+      used.add(p.id);
       const qty = p.unit === "kg" ? int(1, 3) : int(1, 4);
       return { name: p.name, qty, unit: p.unit, productId: p.id, pricePaise: p.pricePaise };
     });
+  };
   const itemsTotal = (items: LineItem[]) => items.reduce((a, it) => a + (it.pricePaise ?? 0) * (it.qty ?? 1), 0);
 
   const ledger: LedgerEntry[] = [];

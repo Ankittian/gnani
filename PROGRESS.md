@@ -18,8 +18,8 @@
 | 7 M4 Voice orders | 3 | 3 | ✅ |
 | 8 M5 Aaj ka Hisaab | 1 | 1 | ✅ |
 | 9 Onboarding & settings | 2 | 2 | ✅ |
-| 10 QA, eval, ship | 6 | 1 | ⏳ |
-| **Total** | **48** | **42** | |
+| 10 QA, eval, ship | 6 | 3 | ⏳ |
+| **Total** | **48** | **44** | |
 
 Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂️ cut
 
@@ -190,7 +190,7 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 ## Remaining
 - [ ] 4.8 / manual: test mic flow on a real phone (Chrome Android) — needs HTTPS (Vercel) for mic
 - [ ] 10.1 eval over 30 utterances (clean + noisy)
-- [ ] 10.3 browser QA pass (mobile viewport screenshots)
-- [ ] 10.4 react best-practices + JS security audit
+- [x] 10.3 browser QA (Playwright, 390x844): onboarding → every screen → typed command → action card; 0 console errors, 0 overflow (`scripts/qa.mjs`)
+- [x] 10.4 (partial) keys absent from client bundle + not tracked by git; ESLint 0 problems. Full js-security-audit still to run before deploy
 - [ ] 10.5 deploy to Vercel (needs user login)
 - [ ] 10.6 README write-up

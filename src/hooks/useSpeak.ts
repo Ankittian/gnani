@@ -43,15 +43,19 @@ export function useSpeak() {
   const [level, setLevel] = useState(0);
   const raf = useRef<number | null>(null);
 
-  const loop = useCallback(() => {
-    if (!analyser) return;
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteTimeDomainData(data);
-    let sum = 0;
-    for (const v of data) sum += ((v - 128) / 128) ** 2;
-    setLevel(Math.min(1, Math.sqrt(sum / data.length) * 4));
-    raf.current = requestAnimationFrame(loop);
+  const tick = useRef<() => void>(() => undefined);
+  useEffect(() => {
+    tick.current = () => {
+      if (!analyser) return;
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for (const v of data) sum += ((v - 128) / 128) ** 2;
+      setLevel(Math.min(1, Math.sqrt(sum / data.length) * 4));
+      raf.current = requestAnimationFrame(() => tick.current());
+    };
   }, []);
+  const loop = useCallback(() => tick.current(), []);
 
   const play = useCallback(
     async (blob: Blob): Promise<void> => {

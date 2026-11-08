@@ -90,30 +90,6 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
 
   const fail = useCallback((message: string) => patch({ phase: "error", error: message }), []);
 
-  /** Run understanding on a transcript (from STT or typed). */
-  const processTranscript = useCallback(
-    async (transcript: string, detected: LangCode | null) => {
-      if (!shop) return;
-      const text = transcript.trim();
-      if (!text) {
-        fail(t(lang, "heardNothing"));
-        return;
-      }
-      lastTranscript.current = text;
-      patch({ phase: "understanding", transcript: text, detectedLanguage: detected });
-      try {
-        const context = await contextWithStock();
-        const action = await api.understand({ transcript: text, language: detected ?? shop.language, mode: "command", context });
-        void recordUsage(getDb(), { llmCalls: 1 });
-        await routeAction(action);
-      } catch (e) {
-        fail(api.friendlyError(e).message);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [shop, lang],
-  );
-
   const routeAction = async (action: Action) => {
     if (!shop) return;
     const db = getDb();
@@ -169,6 +145,30 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
         patch({ phase: "done" });
     }
   };
+
+  /** Run understanding on a transcript (from STT or typed). */
+  const processTranscript = useCallback(
+    async (transcript: string, detected: LangCode | null) => {
+      if (!shop) return;
+      const text = transcript.trim();
+      if (!text) {
+        fail(t(lang, "heardNothing"));
+        return;
+      }
+      lastTranscript.current = text;
+      patch({ phase: "understanding", transcript: text, detectedLanguage: detected });
+      try {
+        const context = await contextWithStock();
+        const action = await api.understand({ transcript: text, language: detected ?? shop.language, mode: "command", context });
+        void recordUsage(getDb(), { llmCalls: 1 });
+        await routeAction(action);
+      } catch (e) {
+        fail(api.friendlyError(e).message);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [shop, lang],
+  );
 
   const handleRecording = useCallback(
     async (rec: RecordingResult | null) => {

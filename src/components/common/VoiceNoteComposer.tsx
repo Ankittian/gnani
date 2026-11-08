@@ -67,6 +67,7 @@ export function VoiceNoteComposer({ shop, kind, title, defaultLanguage, data, fi
   }, [kind, language, useMyVoice]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void run();
   }, [run]);
 

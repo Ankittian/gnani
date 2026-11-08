@@ -1,0 +1,35 @@
+# Spartan AI config (contains API keys)
+.spartan/ai.env
+
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+
+# Test / tooling output
+coverage/
+playwright-report/
+test-results/
+
+# Generated audio (smoke tests, fixtures stay in public/fixtures)
+scripts/out/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

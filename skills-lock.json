@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "skills": {
+    "planetscale-autonomous-execution-mode": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-autonomous-execution-mode/SKILL.md",
+      "computedHash": "aa433ed891228da9b03ef66329bbce81503d285a67a88c3625493f3a145497f3",
+      "installMode": "copy"
+    },
+    "planetscale-best-practices-matrix": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-best-practices-matrix/SKILL.md",
+      "computedHash": "64c2a5cbaf94d04d16435883116b8cdc54338f4919968fd01daf5cd4ab947df9",
+      "installMode": "copy"
+    },
+    "planetscale-change-gates-and-approval-contract": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-change-gates-and-approval-contract/SKILL.md",
+      "computedHash": "f239c3f6c1080118165d0e585ed2c08edc414ac69bd54d1819853badc5b0bb79",
+      "installMode": "copy"
+    },
+    "planetscale-codebase-sqlcommenter-instrumentation": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-codebase-sqlcommenter-instrumentation/SKILL.md",
+      "computedHash": "92aceea4932d2dc4beeb108b386b5b77b3a40d24208e5174b922ca5a938703d1",
+      "installMode": "copy"
+    },
+    "planetscale-customer-report-template": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-customer-report-template/SKILL.md",
+      "computedHash": "3e6f032b0546a676fd2ba106b52148a74c5103b9e0325a0dc4a45be2b28ae5f3",
+      "installMode": "copy"
+    },
+    "planetscale-mcp-agent-operating-model": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-mcp-agent-operating-model/SKILL.md",
+      "computedHash": "cc4d7046b1ecade702b10ee474b69f407743854c48c4cdb2bf48a9db8f645f2b",
+      "installMode": "copy"
+    },
+    "planetscale-postgres-safety-review": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-postgres-safety-review/SKILL.md",
+      "computedHash": "836afcaa2029e9175db4aafe4adcd9fd289e28b4953e9d3568ca849288d67250",
+      "installMode": "copy"
+    },
+    "planetscale-pscale-cli-automation": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-pscale-cli-automation/SKILL.md",
+      "computedHash": "aa8c21dca20a7f3f059a4a93a9ba46e7b9eb66d6414d308226e7c1349d1bb335",
+      "installMode": "copy"
+    },
+    "planetscale-query-insights-and-tags": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-query-insights-and-tags/SKILL.md",
+      "computedHash": "6ba2f5c43290d3dc51944c2c745cbbd368a469a242045b98ba71a940e3036935",
+      "installMode": "copy"
+    },
+    "planetscale-readonly-inventory": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-readonly-inventory/SKILL.md",
+      "computedHash": "0bea2381b88f8202a77cefe82c53816273686c148338eff83f867de6d8b7eacd",
+      "installMode": "copy"
+    },
+    "planetscale-safe-orchestrator": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-safe-orchestrator/SKILL.md",
+      "computedHash": "c01436f5503e8325e0c80c86511d69ccaff0ae05c5b3bd17a82f3d0dc4cb6846",
+      "installMode": "copy"
+    },
+    "planetscale-schema-recommendations-agent-loop": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-schema-recommendations-agent-loop/SKILL.md",
+      "computedHash": "b3b0bc31d89e6e0bca5dca39329db202539288ebf50c30c84227180113d3f32f",
+      "installMode": "copy"
+    },
+    "planetscale-traffic-control-recommendations": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-traffic-control-recommendations/SKILL.md",
+      "computedHash": "43a9a65ae7a173cb73505d39278962ba37e023349faef0e694c8d349da5397d3",
+      "installMode": "copy"
+    },
+    "planetscale-vitess-safety-review": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-vitess-safety-review/SKILL.md",
+      "computedHash": "d716885ece3bc369e7d61d1b5f46348192868c5b13bb9ae288220090bf5c6b9d",
+      "installMode": "copy"
+    },
+    "planetscale-webhook-automation-recommendations": {
+      "source": "planetscale/skills",
+      "sourceType": "github",
+      "skillPath": "planetscale-webhook-automation-recommendations/SKILL.md",
+      "computedHash": "7c6596df1c368c901aa38ab6f3c85317120344ba8e56b2e582e451abc0b4fe6e",
+      "installMode": "copy"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "3219a1944e404ffc14d1d9d6aef6dd2e3855b81387ee0a044ccbfe14d34c2357",
+      "installMode": "copy"
+    }
+  }
+}

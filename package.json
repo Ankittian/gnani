@@ -19,6 +19,7 @@
         "dexie-react-hooks": "^4.4.0",
         "motion": "^14.10.1",
         "next": "16.4.5",
+        "next-intl": "^4.14.9",
         "react": "19.3.0",
         "react-dom": "19.3.0",
         "recharts": "^3.10.1",
@@ -27,6 +28,7 @@
         "zod": "^4.6.7"
     },
     "devDependencies": {
+        "@formatjs/icu-messageformat-parser": "^3.5.23",
         "@tailwindcss/turbopack": "^4",
         "@testing-library/jest-dom": "^7.0.1",
         "@testing-library/react": "^16.3.3",

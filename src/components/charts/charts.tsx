@@ -4,15 +4,25 @@
  * Chart primitives (Recharts). Colors come from theme tokens so dark/light just work.
  * All money inputs are paise; tooltips format with formatINR.
  */
-import { useId } from "react";
+import { useId, useMemo } from "react";
+import { useLocale } from "next-intl";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatINR } from "@/lib/domain/money";
 
 const INK_MUTED = "var(--muted)";
 const GRID = "var(--line)";
 
-const dayShort = (iso: string) => new Date(iso + "T00:00").toLocaleDateString("en-IN", { weekday: "short" });
-const dayLong = (iso: string) => new Date(iso + "T00:00").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" });
+/** Axis/tooltip day labels in the active language ("Mon" / "सोम" / "திங்.") — never a hardcoded locale. */
+function useDayFormats() {
+  const locale = useLocale();
+  return useMemo(
+    () => ({
+      dayShort: (iso: string) => new Date(iso + "T00:00").toLocaleDateString(locale, { weekday: "short" }),
+      dayLong: (iso: string) => new Date(iso + "T00:00").toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "short" }),
+    }),
+    [locale],
+  );
+}
 
 /** ₹1.2k style axis ticks (paise in). */
 const compact = (paise: number) => {
@@ -46,8 +56,9 @@ function Tip({ active, payload, label, title }: { active?: boolean; payload?: Ti
 }
 
 /** Tiny trend line for the hero card (sits on the hero surface, so it inherits the hero ink colour). */
-export function Sparkline({ data, label }: { data: { date: string; amount: number }[]; label: string }) {
+export function Sparkline({ data, label, name }: { data: { date: string; amount: number }[]; label: string; name: string }) {
   const id = useId();
+  const { dayLong } = useDayFormats();
   return (
     <div className="h-14 w-full text-hero-ink" role="img" aria-label={label}>
       <ResponsiveContainer width="100%" height="100%">
@@ -59,7 +70,7 @@ export function Sparkline({ data, label }: { data: { date: string; amount: numbe
             </linearGradient>
           </defs>
           <Tooltip cursor={{ stroke: "currentColor", strokeOpacity: 0.4 }} content={<Tip title={dayLong} />} />
-          <Area type="monotone" dataKey="amount" name="Sales" stroke="currentColor" strokeWidth={2} fill={`url(#${id})`} dot={false} activeDot={{ r: 4, fill: "currentColor", stroke: "var(--hero)", strokeWidth: 2 }} />
+          <Area type="monotone" dataKey="amount" name={name} stroke="currentColor" strokeWidth={2} fill={`url(#${id})`} dot={false} activeDot={{ r: 4, fill: "currentColor", stroke: "var(--hero)", strokeWidth: 2 }} />
           <XAxis dataKey="date" hide />
         </AreaChart>
       </ResponsiveContainer>
@@ -79,6 +90,7 @@ export function CompareBars({
   b: { key: string; name: string; color: string };
   label: string;
 }) {
+  const { dayShort, dayLong } = useDayFormats();
   return (
     <div className="h-52 w-full" role="img" aria-label={label}>
       <ResponsiveContainer width="100%" height="100%">
@@ -98,6 +110,7 @@ export function CompareBars({
 /** Single-series area/line trend. */
 export function TrendArea({ data, name, color, label }: { data: { date: string; amount: number }[]; name: string; color: string; label: string }) {
   const id = useId();
+  const { dayShort, dayLong } = useDayFormats();
   return (
     <div className="h-44 w-full" role="img" aria-label={label}>
       <ResponsiveContainer width="100%" height="100%">

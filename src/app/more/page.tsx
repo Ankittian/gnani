@@ -1,18 +1,21 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { Rise, Stagger } from "@/components/common/motion";
 import { ModuleTile, PageHeader } from "@/components/common/ui";
-import { useShop } from "@/hooks/useShop";
 
 export default function MorePage() {
-  const { tr } = useShop();
+  const t = useTranslations();
   return (
-    <div>
-      <PageHeader title={tr("navMore")} />
-      <div className="grid grid-cols-2 gap-3 px-4">
-        <ModuleTile href="/orders" icon="orders" tone="saffron" label={tr("modOrders")} />
-        <ModuleTile href="/hisaab" icon="hisaab" tone="leaf" label={tr("modHisaab")} />
-        <ModuleTile href="/settings" icon="settings" tone="muted" label={tr("settings")} />
-      </div>
-    </div>
+    <Stagger>
+      <Rise>
+        <PageHeader title={t("navMore")} />
+      </Rise>
+      <Rise className="grid grid-cols-2 gap-3 px-4">
+        <ModuleTile href="/orders" icon="orders" tone="saffron" label={t("modOrders")} />
+        <ModuleTile href="/hisaab" icon="hisaab" tone="leaf" label={t("modHisaab")} />
+        <ModuleTile href="/settings" icon="settings" tone="muted" label={t("settings")} />
+      </Rise>
+    </Stagger>
   );
 }

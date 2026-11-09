@@ -2,6 +2,7 @@
  * Pure-ish helpers for the voice command pipeline, kept out of the hook so they're unit-testable.
  */
 import type { LangCode } from "@/lib/i18n/languages";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { formatINR } from "@/lib/domain/money";
 import type { Action } from "@/lib/llm/schema";
 import type { Shop } from "@/lib/types";
@@ -29,15 +30,15 @@ export function canAutoConfirm(a: Action, problem: string | null): boolean {
   return a.confidence >= 0.85 && !problem && !a.clarify && !(a.customer?.isNew ?? false);
 }
 
-export const INTENT_META: Record<Action["intent"], { emoji: string; label: string; tone: "chili" | "leaf" | "brand" | "saffron" }> = {
-  add_credit: { emoji: "📒", label: "Udhaar", tone: "chili" },
-  record_payment: { emoji: "💰", label: "Payment", tone: "leaf" },
-  query_balance: { emoji: "🔎", label: "Balance", tone: "saffron" },
-  cash_sale: { emoji: "🧾", label: "Cash sale", tone: "leaf" },
-  stock_update: { emoji: "📦", label: "Stock", tone: "brand" },
-  query_stock: { emoji: "📦", label: "Stock check", tone: "saffron" },
-  create_order: { emoji: "🛵", label: "Order", tone: "brand" },
-  send_reminder: { emoji: "🔔", label: "Reminder", tone: "saffron" },
-  daily_summary: { emoji: "📊", label: "Hisaab", tone: "saffron" },
-  unknown: { emoji: "🤔", label: "Hmm", tone: "saffron" },
+export const INTENT_META: Record<Action["intent"], { emoji: string; labelKey: MessageKey; tone: "chili" | "leaf" | "brand" | "saffron" }> = {
+  add_credit: { emoji: "📒", labelKey: "intentCredit", tone: "chili" },
+  record_payment: { emoji: "💰", labelKey: "intentPayment", tone: "leaf" },
+  query_balance: { emoji: "🔎", labelKey: "intentBalance", tone: "saffron" },
+  cash_sale: { emoji: "🧾", labelKey: "intentCashSale", tone: "leaf" },
+  stock_update: { emoji: "📦", labelKey: "intentStock", tone: "brand" },
+  query_stock: { emoji: "📦", labelKey: "intentStockCheck", tone: "saffron" },
+  create_order: { emoji: "🛵", labelKey: "intentOrder", tone: "brand" },
+  send_reminder: { emoji: "🔔", labelKey: "intentReminder", tone: "saffron" },
+  daily_summary: { emoji: "📊", labelKey: "intentSummary", tone: "saffron" },
+  unknown: { emoji: "🤔", labelKey: "intentUnknown", tone: "saffron" },
 };

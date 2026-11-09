@@ -103,20 +103,3 @@ export async function ttsClone(req: TtsCloneRequest): Promise<{ blob: Blob; used
   if (!usedFallback) await storeAudio(key, blob);
   return { blob, usedFallback };
 }
-
-/** Friendly message for an error code (shown in UI; never raw axios/fetch strings). */
-export function friendlyError(e: unknown): { code: string; message: string } {
-  if (e instanceof ApiError) {
-    const map: Partial<Record<ApiError["code"], string>> = {
-      NETWORK: "Internet nahi hai — connection check karein.",
-      OUT_OF_CREDITS: "Demo credits khatam ho gaye. Thodi der baad try karein.",
-      RATE_LIMITED: "Bahut saari requests — 2 second ruk kar dobara bolein.",
-      CAP_EXCEEDED: "Aaj ki demo limit poori ho gayi. Kal phir try karein!",
-      AUDIO_TOO_LONG: "Recording bahut lambi hai — 25 second se kam bolein.",
-      UNSUPPORTED_FORMAT: "Yeh audio format support nahi hai.",
-      NOT_CONFIGURED: "Server keys set nahi hain.",
-    };
-    return { code: e.code, message: map[e.code] ?? e.message };
-  }
-  return { code: "UNKNOWN", message: "Kuch gadbad hui. Dobara koshish karein." };
-}

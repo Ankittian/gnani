@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Check, Minus, Plus, UserPlus, X } from "@/components/common/icons";
 import type { Action } from "@/lib/llm/schema";
 import { formatINR } from "@/lib/domain/money";
+import { useUnit } from "@/components/common/ui";
 import { INTENT_META } from "@/lib/voice/pipeline";
 
 interface ActionCardProps {
@@ -29,6 +31,8 @@ const TONE: Record<string, string> = {
 const AUTO_SECONDS = 3;
 
 export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, cancelLabel, onChange, onConfirm, onCancel }: ActionCardProps) {
+  const t = useTranslations();
+  const unitLabel = useUnit();
   const meta = INTENT_META[action.intent];
   const [countdown, setCountdown] = useState(0);
   const showAmount = ["add_credit", "record_payment", "cash_sale"].includes(action.intent);
@@ -66,15 +70,15 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
       <div className="mb-3 flex items-center gap-2">
         <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${TONE[meta.tone]}`}>
           <span aria-hidden>{meta.emoji}</span>
-          {meta.label}
+          {t(meta.labelKey)}
         </span>
-        {action.confidence < 0.6 && <span className="text-xs text-muted">please check</span>}
+        {action.confidence < 0.6 && <span className="text-xs text-muted">{t("pleaseCheck")}</span>}
       </div>
 
       {action.customer && (
         <div className="mb-3">
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted" htmlFor="ac-customer">
-            Customer
+            {t("customer")}
           </label>
           <div className="flex items-center gap-2">
             <input
@@ -85,7 +89,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
             />
             {action.customer.isNew && (
               <span className="inline-flex items-center gap-1 rounded-full bg-saffron-soft px-2.5 py-1 text-xs font-semibold text-saffron">
-                <UserPlus className="h-3.5 w-3.5" /> New
+                <UserPlus className="h-3.5 w-3.5" /> {t("newCustomer")}
               </span>
             )}
           </div>
@@ -95,7 +99,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
       {showAmount && (
         <div className="mb-3">
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted" htmlFor="ac-amount">
-            Amount
+            {t("amount")}
           </label>
           <div
             className={`flex items-center rounded-2xl border bg-bg px-3 ${problem === "missing_amount" ? "border-chili ring-2 ring-chili/30" : "border-line"}`}
@@ -110,7 +114,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
               className="tabular min-h-14 w-full bg-transparent px-2 text-4xl font-semibold focus:outline-none"
             />
           </div>
-          {problem === "missing_amount" && <p className="mt-1 text-sm font-semibold text-chili">Kitne rupaye? Amount daal dein.</p>}
+          {problem === "missing_amount" && <p className="mt-1 text-sm font-semibold text-chili">{t("askAmount")}</p>}
         </div>
       )}
 
@@ -118,12 +122,12 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
         <div className="mb-3 flex flex-wrap gap-2">
           {action.items.map((it, i) => (
             <span key={`${it.name}-${i}`} className="inline-flex items-center gap-1 rounded-full bg-brand-soft py-1 pl-3 pr-1 text-sm font-semibold text-brand-ink">
-              {it.qty != null ? `${it.qty} ${it.unit !== "unknown" ? it.unit : ""} ` : ""}
+              {it.qty != null ? `${it.qty} ${unitLabel(it.unit)} ` : ""}
               {it.name}
               {it.pricePaise != null && <span className="text-muted"> · {formatINR(it.pricePaise)}</span>}
               <button
                 type="button"
-                aria-label={`Remove ${it.name}`}
+                aria-label={t("removeItem", { name: it.name })}
                 className="ml-1 rounded-full p-1 hover:bg-brand-soft"
                 onClick={() => onChange({ ...action, items: action.items.filter((_, j) => j !== i) })}
               >
@@ -140,13 +144,13 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
             <li key={`${op.name}-${i}`} className="flex items-center justify-between gap-2 rounded-2xl bg-bg px-3 py-2">
               <span className="font-semibold">{op.name}</span>
               {op.op === "out" ? (
-                <span className="rounded-full bg-chili-soft px-3 py-1 text-sm font-semibold text-chili">khatam</span>
+                <span className="rounded-full bg-chili-soft px-3 py-1 text-sm font-semibold text-chili">{t("soldOut")}</span>
               ) : (
                 <span className="flex items-center gap-1">
-                  <span className="text-xs text-muted">{op.op === "add" ? "+ add" : op.op === "remove" ? "− remove" : "= set"}</span>
+                  <span className="text-xs text-muted">{op.op === "add" ? t("opAdd") : op.op === "remove" ? t("opRemove") : t("opSet")}</span>
                   <button
                     type="button"
-                    aria-label="decrease"
+                    aria-label={t("decrease")}
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-card"
                     onClick={() => onChange({ ...action, stockOps: action.stockOps.map((o, j) => (j === i ? { ...o, qty: Math.max(0, (o.qty ?? 0) - 1) } : o)) })}
                   >
@@ -155,13 +159,13 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
                   <span className="tabular w-10 text-center text-lg font-semibold">{op.qty ?? 0}</span>
                   <button
                     type="button"
-                    aria-label="increase"
+                    aria-label={t("increase")}
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-card"
                     onClick={() => onChange({ ...action, stockOps: action.stockOps.map((o, j) => (j === i ? { ...o, qty: (o.qty ?? 0) + 1 } : o)) })}
                   >
                     <Plus className="h-4 w-4" />
                   </button>
-                  <span className="text-sm text-muted">{op.unit !== "unknown" ? op.unit : ""}</span>
+                  <span className="text-sm text-muted">{unitLabel(op.unit)}</span>
                 </span>
               )}
             </li>

@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { AnimatePresence } from "motion/react";
 
 const VoiceSheet = dynamic(() => import("@/components/voice/VoiceSheet").then((m) => m.VoiceSheet), { ssr: false });
 
@@ -27,7 +28,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={value}>
       {children}
-      {isOpen && <VoiceSheet key={seed.n} initialText={seed.typed} onClose={close} />}
+      <AnimatePresence>{isOpen && <VoiceSheet key={seed.n} initialText={seed.typed} onClose={close} />}</AnimatePresence>
     </Ctx.Provider>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import * as api from "@/lib/api/client";
 import { encodeWav } from "@/lib/audio/wav";
 import { getDb } from "@/lib/db/schema";
@@ -12,7 +13,7 @@ import { formatINR } from "@/lib/domain/money";
 import { actionProblem, MUTATING_INTENTS, type Action } from "@/lib/llm/schema";
 import { celebrate, playTing, vibrate } from "@/lib/feedback";
 import type { LangCode } from "@/lib/i18n/languages";
-import { t } from "@/lib/i18n/strings";
+import { errorKey } from "@/lib/i18n/errors";
 import type { Shop, ShopContext } from "@/lib/types";
 import { canAutoConfirm, fillBalance, languageHintsFor, sttFormatFor } from "@/lib/voice/pipeline";
 import { useRecorder, type RecordingResult } from "@/hooks/useRecorder";
@@ -71,6 +72,7 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
   const lastTranscript = useRef<string>("");
   const speaker = useSpeak();
   const router = useRouter();
+  const t = useTranslations();
   const patch = (p: Partial<VoiceState>) => setState((s) => ({ ...s, ...p }));
   const lang: LangCode = shop?.language ?? "hi-IN";
 
@@ -152,7 +154,7 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
       if (!shop) return;
       const text = transcript.trim();
       if (!text) {
-        fail(t(lang, "heardNothing"));
+        fail(t("errNoSpeech"));
         return;
       }
       lastTranscript.current = text;
@@ -163,7 +165,7 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
         void recordUsage(getDb(), { llmCalls: 1 });
         await routeAction(action);
       } catch (e) {
-        fail(api.friendlyError(e).message);
+        fail(t(errorKey(e)));
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,7 +176,7 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
     async (rec: RecordingResult | null) => {
       if (!rec || !shop) return;
       if (rec.durationSec < 0.5) {
-        fail(t(lang, "heardNothing"));
+        fail(t("errNoSpeech"));
         return;
       }
       patch({ phase: "transcribing" });
@@ -192,10 +194,10 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
         void recordUsage(getDb(), { sttSeconds: Math.ceil(rec.durationSec) });
         await processTranscript(res.transcript, res.detectedLanguageCode);
       } catch (e) {
-        fail(api.friendlyError(e).message);
+        fail(t(errorKey(e)));
       }
     },
-    [shop, lang, processTranscript, fail],
+    [shop, processTranscript, fail, t],
   );
 
   const recorder = useRecorder({ maxSec: 25, onAutoStop: (r) => void handleRecording(r) });
@@ -258,16 +260,15 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
       await speak(say, action.replyLanguage);
       patch({ phase: "done" });
     } catch (e) {
-      const msg = e instanceof Error && e.message === "ambiguous_customer" ? "Kaun se customer? Naam thoda aur saaf bolein." : api.friendlyError(e).message;
-      fail(msg);
+      fail(t(errorKey(e)));
     }
-  }, [state, shop, speak, fail]);
+  }, [state, shop, speak, fail, t]);
 
   const undo = useCallback(async () => {
     if (!state.result) return;
     await undoCommit(getDb(), state.result);
-    patch({ result: null, reply: "↩️ " + t(lang, "undo") });
-  }, [state.result, lang]);
+    patch({ result: null, reply: "↩️ " + t("undo") });
+  }, [state.result, t]);
 
   const reset = useCallback(() => {
     recorder.cancel();

@@ -3,9 +3,11 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { animate } from "motion/react";
+import { motion } from "motion/react";
+import { useFormatter, useTranslations } from "next-intl";
 import { Loader2, Play, Square } from "@/components/common/icons";
 import { toast } from "sonner";
+import { AnimatedNumber, Rise, Stagger, press } from "@/components/common/motion";
 import { Avatar, Card, PageHeader, StatChip } from "@/components/common/ui";
 import { DostOrb } from "@/components/orb/DostOrb";
 import { useShop } from "@/hooks/useShop";
@@ -14,23 +16,15 @@ import * as api from "@/lib/api/client";
 import { getDb } from "@/lib/db/schema";
 import { recordUsage } from "@/lib/db/repo";
 import { formatINR, paiseToRupees } from "@/lib/domain/money";
+import { errorKey } from "@/lib/i18n/errors";
 import { isLow } from "@/lib/domain/stock";
 import { summarizeDay, weekSales, weekSeries } from "@/lib/domain/summary";
 import { CompareBars, Donut, TrendArea } from "@/components/charts/charts";
 
-function CountUp({ paise }: { paise: number }) {
-  const [v, setV] = useState(0);
-  const prev = useRef(0);
-  useEffect(() => {
-    const c = animate(prev.current, paise, { duration: 0.8, onUpdate: (x) => setV(Math.round(x)) });
-    prev.current = paise;
-    return () => c.stop();
-  }, [paise]);
-  return <>{formatINR(v)}</>;
-}
-
 function HisaabInner() {
-  const { shop, tr } = useShop();
+  const { shop } = useShop();
+  const t = useTranslations();
+  const format = useFormatter();
   const speaker = useSpeak();
   const params = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -78,7 +72,7 @@ function HisaabInner() {
       setLoading(false);
       await speaker.play(blob);
     } catch (e) {
-      toast.error(api.friendlyError(e).message);
+      toast.error(t(errorKey(e)));
     } finally {
       setLoading(false);
     }
@@ -95,87 +89,108 @@ function HisaabInner() {
   if (!shop || !s) return null;
 
   return (
-    <div>
-      <PageHeader title={`${tr("todayHisaab")}`} subtitle={new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })} back="/more" />
+    <Stagger>
+      <Rise>
+        <PageHeader title={t("todayHisaab")} subtitle={format.dateTime(new Date(), { weekday: "long", day: "numeric", month: "long" })} back="/more" />
+      </Rise>
 
-      <div className="mx-4 flex flex-col items-center rounded-card border border-line bg-card p-4 shadow-card">
+      <Rise className="mx-4 flex flex-col items-center rounded-card border border-line bg-card p-4 shadow-card">
         <DostOrb state={speaker.speaking ? "speaking" : loading ? "thinking" : "idle"} level={speaker.level} size={110} />
-        <button
+        <motion.button
           type="button"
+          {...press}
           onClick={() => (speaker.speaking ? speaker.stop() : void play())}
           disabled={loading}
-          className="mt-2 flex min-h-14 items-center gap-2 rounded-full bg-brand px-8 text-xl font-semibold text-brand-ink shadow-card active:scale-95 disabled:opacity-60"
+          className="mt-2 flex min-h-14 items-center gap-2 rounded-full bg-brand px-8 text-xl font-semibold text-brand-ink shadow-card disabled:opacity-60"
         >
           {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : speaker.speaking ? <Square className="h-5 w-5 fill-current" /> : <Play className="h-6 w-6 fill-current" />}
-          {tr("listen")}
-        </button>
-      </div>
+          {t("listen")}
+        </motion.button>
+      </Rise>
 
-      <div className="mx-4 mt-4 grid grid-cols-2 gap-3">
-        <StatChip icon="sales" label={tr("statSales")} value={formatINR(s.salesPaise)} tone="leaf" />
-        <StatChip icon="credit" label={tr("statCreditGiven")} value={formatINR(s.creditGivenPaise)} tone="chili" />
-        <StatChip icon="collected" label={tr("statCollected")} value={formatINR(s.paymentsPaise)} tone="leaf" />
-        <StatChip icon="orders" label="Delivered" value={String(s.ordersDelivered)} tone="saffron" />
-      </div>
+      <Rise className="mx-4 mt-4 grid grid-cols-2 gap-3">
+        <StatChip icon="sales" label={t("statSales")} value={formatINR(s.salesPaise)} tone="leaf" />
+        <StatChip icon="credit" label={t("statCreditGiven")} value={formatINR(s.creditGivenPaise)} tone="chili" />
+        <StatChip icon="collected" label={t("statCollected")} value={formatINR(s.paymentsPaise)} tone="leaf" />
+        <StatChip icon="orders" label={t("delivered")} value={String(s.ordersDelivered)} tone="saffron" />
+      </Rise>
 
-      <Card className="mx-4 mt-3 text-center">
-        <p className="text-sm text-muted">Net cash in</p>
-        <p className="tabular text-4xl font-semibold text-leaf">
-          <CountUp paise={s.netCashInPaise} />
-        </p>
-      </Card>
+      <Rise>
+        <Card className="mx-4 mt-3 text-center">
+          <p className="text-sm text-muted">{t("netCashIn")}</p>
+          <p className="tabular text-4xl font-semibold text-leaf">
+            <AnimatedNumber value={s.netCashInPaise} format={formatINR} />
+          </p>
+        </Card>
+      </Rise>
 
-      <Card className="mx-4 mt-3">
-        <h2 className="font-semibold">{tr("statSales")} · 7 din</h2>
-        <p className="tabular mb-2 text-2xl font-semibold tracking-tight">{formatINR(weekSalesTotal)}</p>
-        <TrendArea data={sales7} name={tr("statSales")} color="var(--brand)" label="Cash sales, last 7 days" />
-      </Card>
+      <Rise>
+        <Card className="mx-4 mt-3">
+          <h2 className="font-semibold">
+            {t("statSales")} · {t("last7Days")}
+          </h2>
+          <p className="tabular mb-2 text-2xl font-semibold tracking-tight">{formatINR(weekSalesTotal)}</p>
+          <TrendArea data={sales7} name={t("statSales")} color="var(--brand)" label={t("chartSales7")} />
+        </Card>
+      </Rise>
 
-      <Card className="mx-4 mt-3">
-        <h2 className="mb-3 font-semibold">Aaj ka mix</h2>
-        <Donut
-          label="Today: cash sales, collected and credit given"
-          centerLabel="Net cash in"
-          centerValue={formatINR(s.netCashInPaise)}
-          slices={[
-            { name: tr("statSales"), value: s.salesPaise, color: "var(--brand)" },
-            { name: tr("statCollected"), value: s.paymentsPaise, color: "var(--leaf)" },
-            { name: tr("statCreditGiven"), value: s.creditGivenPaise, color: "var(--chili)" },
-          ]}
-        />
-      </Card>
+      <Rise>
+        <Card className="mx-4 mt-3">
+          <h2 className="mb-3 font-semibold">{t("todayMix")}</h2>
+          <Donut
+            label={t("chartMix")}
+            centerLabel={t("netCashIn")}
+            centerValue={formatINR(s.netCashInPaise)}
+            slices={[
+              { name: t("statSales"), value: s.salesPaise, color: "var(--brand)" },
+              { name: t("statCollected"), value: s.paymentsPaise, color: "var(--leaf)" },
+              { name: t("statCreditGiven"), value: s.creditGivenPaise, color: "var(--chili)" },
+            ]}
+          />
+        </Card>
+      </Rise>
 
-      <Card className="mx-4 mt-3">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-semibold">Pichhle 7 din</h2>
-          <span className="flex items-center gap-3 text-xs text-muted">
-            <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-chili" />udhaar</span>
-            <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-brand" />jama</span>
-          </span>
-        </div>
-        <CompareBars
-          data={week}
-          a={{ key: "credit", name: "Udhaar", color: "var(--chili)" }}
-          b={{ key: "payment", name: "Jama", color: "var(--brand)" }}
-          label="Last 7 days: udhaar given vs collected"
-        />
-      </Card>
+      <Rise>
+        <Card className="mx-4 mt-3">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="font-semibold">{t("last7Days")}</h2>
+            <span className="flex items-center gap-3 text-xs text-muted">
+              <span>
+                <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-chili" />
+                {t("ledgerCredit")}
+              </span>
+              <span>
+                <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-brand" />
+                {t("ledgerPayment")}
+              </span>
+            </span>
+          </div>
+          <CompareBars
+            data={week}
+            a={{ key: "credit", name: t("ledgerCredit"), color: "var(--chili)" }}
+            b={{ key: "payment", name: t("ledgerPayment"), color: "var(--brand)" }}
+            label={t("chartCompare")}
+          />
+        </Card>
+      </Rise>
 
       {s.topOwing.length > 0 && (
-        <Card className="mx-4 mt-3">
-          <h2 className="mb-2 font-semibold">Sabse zyada baaki</h2>
-          <ul className="space-y-2">
-            {s.topOwing.map((c) => (
-              <li key={c.id} className="flex items-center gap-3">
-                <Avatar name={c.name} size={36} />
-                <span className="flex-1 truncate font-semibold">{c.name}</span>
-                <span className="tabular font-semibold text-chili">{formatINR(c.balance)}</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
+        <Rise>
+          <Card className="mx-4 mt-3">
+            <h2 className="mb-2 font-semibold">{t("topOwing")}</h2>
+            <ul className="space-y-2">
+              {s.topOwing.map((c) => (
+                <li key={c.id} className="flex items-center gap-3">
+                  <Avatar name={c.name} size={36} />
+                  <span className="flex-1 truncate font-semibold">{c.name}</span>
+                  <span className="tabular font-semibold text-chili">{formatINR(c.balance)}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </Rise>
       )}
-    </div>
+    </Stagger>
   );
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 export type OrbState = "idle" | "listening" | "thinking" | "speaking" | "happy" | "sad";
 
@@ -14,6 +15,7 @@ interface DostOrbProps {
 
 /** The "Dost" — a green character that shows what the assistant is doing. */
 export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOrbProps) {
+  const t = useTranslations();
   const lvl = Math.max(0, Math.min(1, level));
   const mouthOpen = state === "speaking" ? 3 + lvl * 14 : state === "happy" ? 8 : 3;
   const eyeY = state === "sad" ? 2 : 0;
@@ -24,7 +26,7 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
       style={{ width: size, height: size }}
       data-state={state}
       role="img"
-      aria-label={`Dukaan Dost is ${state}`}
+      aria-label={t("appName")}
     >
       {state === "listening" && (
         <>

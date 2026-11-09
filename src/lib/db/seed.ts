@@ -166,7 +166,7 @@ export async function seedDemo(db: DukaanDB, shopLanguage: LangCode, now = new D
   orders.push(order("delivered", 3, "cust-fatima", "Fatima Begum", "Deliver after 6 pm"));
   orders.push(order("delivered", 0, "cust-mehul", "Mehul Bhai", null));
   orders.push(order("new", 0, "cust-lakshmi", "Lakshmi Amma", "Ghar pe bhej dena"));
-  orders.push(order("new", 0, null, "Naya customer", null));
+  orders.push(order("new", 0, null, null, null));
 
   const customers: Customer[] = CUSTOMERS.map(([cid, name, language, aliases]) => ({
     id: cid,

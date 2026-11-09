@@ -2,7 +2,10 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
+import { PageFade } from "@/components/common/motion";
+import { LocaleProvider } from "@/components/layout/LocaleProvider";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { VoiceProvider } from "@/components/voice/VoiceProvider";
 import { Splash } from "@/components/common/Splash";
@@ -37,17 +40,15 @@ function ShopGate({ children }: { children: ReactNode }) {
     if (!loading && shop === null && !onboarding) router.replace("/onboarding");
   }, [loading, shop, onboarding, router]);
 
-  useEffect(() => {
-    if (shop?.language) document.documentElement.lang = shop.language.split("-")[0];
-  }, [shop?.language]);
-
   if (!splashDone || loading || (shop === null && !onboarding)) {
-    return <Splash lang={shop?.language} />;
+    return <Splash />;
   }
 
   return (
     <>
-      <main className={`mx-auto w-full max-w-lg ${onboarding ? "" : "pb-nav"}`}>{children}</main>
+      <main className={`mx-auto w-full max-w-lg ${onboarding ? "" : "pb-nav"}`}>
+        <PageFade key={pathname}>{children}</PageFade>
+      </main>
       {!onboarding && <BottomNav />}
     </>
   );
@@ -55,13 +56,16 @@ function ShopGate({ children }: { children: ReactNode }) {
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <VoiceProvider>
-      <ShopGate>{children}</ShopGate>
-      <Toaster
-        position="top-center"
-        closeButton
-        toastOptions={{ style: { background: "var(--card)", color: "var(--ink)", border: "1px solid var(--line)", borderRadius: 14 } }}
-      />
-    </VoiceProvider>
+    <MotionConfig reducedMotion="user">
+      <LocaleProvider>
+        <VoiceProvider>
+          <ShopGate>{children}</ShopGate>
+          <Toaster
+            position="top-center"
+            toastOptions={{ style: { background: "var(--card)", color: "var(--ink)", border: "1px solid var(--line)", borderRadius: 14 } }}
+          />
+        </VoiceProvider>
+      </LocaleProvider>
+    </MotionConfig>
   );
 }

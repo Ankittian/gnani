@@ -1,32 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Loader2, Mic, Square } from "@/components/common/icons";
 import { toast } from "sonner";
+import { press } from "@/components/common/motion";
 import { DostOrb } from "@/components/orb/DostOrb";
 import { useRecorder } from "@/hooks/useRecorder";
 import * as api from "@/lib/api/client";
 import { encodeWav } from "@/lib/audio/wav";
+import { errorKey } from "@/lib/i18n/errors";
 import { LANGUAGES, type LangCode } from "@/lib/i18n/languages";
 import type { CloneEmbedding } from "@/lib/types";
 
 /** Record 8–25 s of the shopkeeper reading a line → Gnani voice-clone embedding. */
 export function CloneRecorder({ language, onDone }: { language: LangCode; onDone: (e: CloneEmbedding) => void }) {
+  const t = useTranslations();
   const [busy, setBusy] = useState(false);
   const rec = useRecorder({ maxSec: 25, onAutoStop: (r) => void upload(r.samples, r.sampleRate, r.durationSec) });
 
   const upload = async (samples: Float32Array, rate: number, dur: number) => {
     if (dur < 6) {
-      toast.error("Thoda lamba bolein (kam se kam 6 second)");
+      toast.error(t("errCloneShort"));
       return;
     }
     setBusy(true);
     try {
       const e = await api.clone(new Blob([encodeWav(samples, rate)], { type: "audio/wav" }), "voice.wav");
-      toast.success("Aapki awaaz save ho gayi");
+      toast.success(t("cloneSaved"));
       onDone(e);
     } catch (e) {
-      toast.error(api.friendlyError(e).message);
+      toast.error(t(errorKey(e)));
     } finally {
       setBusy(false);
     }
@@ -41,8 +46,9 @@ export function CloneRecorder({ language, onDone }: { language: LangCode; onDone
       </p>
       <DostOrb state={busy ? "thinking" : recording ? "listening" : "idle"} level={rec.level} size={96} />
       {recording && <p className="tabular mt-1 font-semibold text-muted">{Math.floor(rec.elapsed)}s</p>}
-      <button
+      <motion.button
         type="button"
+        {...press}
         disabled={busy}
         onClick={async () => {
           if (recording) {
@@ -50,12 +56,12 @@ export function CloneRecorder({ language, onDone }: { language: LangCode; onDone
             if (r) await upload(r.samples, r.sampleRate, r.durationSec);
           } else void rec.start();
         }}
-        className={`mt-3 flex min-h-14 items-center gap-2 rounded-full px-8 text-lg font-semibold shadow-card active:scale-95 ${recording ? "bg-chili text-white" : "bg-brand text-brand-ink"}`}
+        className={`mt-3 flex min-h-14 items-center gap-2 rounded-full px-8 text-lg font-semibold shadow-card ${recording ? "bg-chili text-white" : "bg-brand text-brand-ink"}`}
       >
         {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : recording ? <Square className="h-5 w-5 fill-current" /> : <Mic className="h-5 w-5" />}
-        {busy ? "Ban rahi hai…" : recording ? "Done" : "Record karein"}
-      </button>
-      {rec.status === "error" && <p className="mt-2 text-sm font-semibold text-chili">Mic permission chahiye.</p>}
+        {busy ? t("creating") : recording ? t("done") : t("recordBtn")}
+      </motion.button>
+      {rec.status === "error" && <p className="mt-2 text-sm font-semibold text-chili">{t("errMic")}</p>}
     </div>
   );
 }

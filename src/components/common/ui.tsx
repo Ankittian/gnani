@@ -2,14 +2,19 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useFormatter, useTranslations } from "next-intl";
+import type { MessageKey } from "@/lib/i18n/messages";
+import type { Unit } from "@/lib/types";
+import { PressLink, press } from "@/components/common/motion";
 import { ChevronLeft, IconTile, type IconKey, type Tone } from "@/components/common/icons";
 import { formatINR } from "@/lib/domain/money";
 
 export function PageHeader({ title, subtitle, back, right }: { title: string; subtitle?: string | null; back?: string; right?: ReactNode }) {
+  const t = useTranslations();
   return (
     <header className="flex items-center gap-2 px-4 pb-2 pt-5">
       {back && (
-        <Link href={back} aria-label="Back" className="-ml-1 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-card transition-colors hover:bg-brand-soft">
+        <Link href={back} aria-label={t("back")} className="-ml-1 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-card transition-colors hover:bg-brand-soft">
           <ChevronLeft className="h-5 w-5" />
         </Link>
       )}
@@ -63,9 +68,10 @@ export function StatChip({ icon, label, value, tone }: { icon: IconKey; label: s
 
 export function ModuleTile({ href, icon, tone = "brand", label, sub, badge }: { href: string; icon: IconKey; tone?: Tone; label: string; sub?: string | null; badge?: number }) {
   return (
-    <Link
+    <PressLink
       href={href}
-      className="relative flex min-h-28 flex-col justify-between gap-4 rounded-card border border-line bg-card p-4 shadow-card transition-colors active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+      {...press}
+      className="relative flex min-h-28 flex-col justify-between gap-4 rounded-card border border-line bg-card p-4 shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
     >
       <IconTile icon={icon} tone={tone} size="lg" />
       <span>
@@ -75,7 +81,7 @@ export function ModuleTile({ href, icon, tone = "brand", label, sub, badge }: { 
       {badge ? (
         <span className="absolute right-4 top-4 min-w-6 rounded-full bg-chili px-1.5 py-0.5 text-center text-xs font-semibold text-white">{badge}</span>
       ) : null}
-    </Link>
+    </PressLink>
   );
 }
 
@@ -94,11 +100,28 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   return <div className={`rounded-card border border-line bg-card p-4 shadow-card ${className}`}>{children}</div>;
 }
 
-export function timeAgo(iso: string): string {
-  const s = (Date.now() - new Date(iso).getTime()) / 1000;
-  if (s < 60) return "abhi";
-  if (s < 3600) return `${Math.floor(s / 60)} min`;
-  if (s < 86400) return `${Math.floor(s / 3600)} ghante`;
-  const d = Math.floor(s / 86400);
-  return d === 1 ? "kal" : `${d} din`;
+/** "5 minutes ago" / "कल" etc. via Intl.RelativeTimeFormat in the active language. */
+export function useTimeAgo() {
+  const f = useFormatter();
+  return (iso: string) => f.relativeTime(new Date(iso), new Date());
+}
+
+const UNIT_KEY: Record<Unit, MessageKey> = {
+  kg: "unitKg",
+  g: "unitG",
+  l: "unitL",
+  ml: "unitMl",
+  packet: "unitPacket",
+  piece: "unitPiece",
+  box: "unitBox",
+  sack: "unitSack",
+  dozen: "unitDozen",
+  bottle: "unitBottle",
+  unknown: "unitPiece",
+};
+
+/** Localized unit label ("kg" → "ಕೆಜಿ"); empty string for an unknown unit. Stored values stay as the canonical English ids. */
+export function useUnit() {
+  const t = useTranslations();
+  return (unit: Unit): string => (unit === "unknown" ? "" : t(UNIT_KEY[unit]));
 }

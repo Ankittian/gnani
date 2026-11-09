@@ -29,15 +29,15 @@ export function canAutoConfirm(a: Action, problem: string | null): boolean {
   return a.confidence >= 0.85 && !problem && !a.clarify && !(a.customer?.isNew ?? false);
 }
 
-export const INTENT_META: Record<Action["intent"], { emoji: string; label: string; tone: "chili" | "leaf" | "brand" | "indigo" }> = {
+export const INTENT_META: Record<Action["intent"], { emoji: string; label: string; tone: "chili" | "leaf" | "brand" | "saffron" }> = {
   add_credit: { emoji: "📒", label: "Udhaar", tone: "chili" },
   record_payment: { emoji: "💰", label: "Payment", tone: "leaf" },
-  query_balance: { emoji: "🔎", label: "Balance", tone: "indigo" },
+  query_balance: { emoji: "🔎", label: "Balance", tone: "saffron" },
   cash_sale: { emoji: "🧾", label: "Cash sale", tone: "leaf" },
   stock_update: { emoji: "📦", label: "Stock", tone: "brand" },
-  query_stock: { emoji: "📦", label: "Stock check", tone: "indigo" },
+  query_stock: { emoji: "📦", label: "Stock check", tone: "saffron" },
   create_order: { emoji: "🛵", label: "Order", tone: "brand" },
-  send_reminder: { emoji: "🔔", label: "Reminder", tone: "indigo" },
-  daily_summary: { emoji: "📊", label: "Hisaab", tone: "indigo" },
-  unknown: { emoji: "🤔", label: "Hmm", tone: "indigo" },
+  send_reminder: { emoji: "🔔", label: "Reminder", tone: "saffron" },
+  daily_summary: { emoji: "📊", label: "Hisaab", tone: "saffron" },
+  unknown: { emoji: "🤔", label: "Hmm", tone: "saffron" },
 };

@@ -77,7 +77,7 @@ export default function CustomerPage() {
             type="button"
             onClick={() => setRemind(true)}
             disabled={c.balance <= 0}
-            className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-indigo text-base font-semibold text-white shadow-card disabled:opacity-40"
+            className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-saffron text-base font-semibold text-white shadow-card disabled:opacity-40"
           >
             <Bell className="h-5 w-5" /> {tr("remind")}
           </button>

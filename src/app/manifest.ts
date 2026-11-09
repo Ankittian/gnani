@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Bolke khata, stock, orders aur hisaab — apni bhasha mein.",
     start_url: "/",
     display: "standalone",
-    background_color: "#060a18",
-    theme_color: "#3b6cff",
+    background_color: "#f5f2ea",
+    theme_color: "#14594a",
     orientation: "portrait",
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

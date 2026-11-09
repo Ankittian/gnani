@@ -12,7 +12,7 @@ interface DostOrbProps {
   className?: string;
 }
 
-/** The "Dost" — a marigold character that shows what the assistant is doing. */
+/** The "Dost" — a green character that shows what the assistant is doing. */
 export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOrbProps) {
   const lvl = Math.max(0, Math.min(1, level));
   const mouthOpen = state === "speaking" ? 3 + lvl * 14 : state === "happy" ? 8 : 3;
@@ -43,7 +43,7 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
         style={{
           width: size * 0.82,
           height: size * 0.82,
-          background: "radial-gradient(circle at 32% 26%, #9db8ff 0%, #5d86ff 36%, #3b6cff 66%, #1f3bb8 100%)",
+          background: "radial-gradient(circle at 32% 26%, #7fcfae 0%, #3a9a7a 38%, #14594a 72%, #0b3d32 100%)",
         }}
         animate={
           state === "happy"
@@ -66,13 +66,13 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
           <g className={state === "idle" || state === "listening" ? "animate-blink" : ""} style={{ transformBox: "fill-box" }}>
             {state === "happy" ? (
               <>
-                <path d="M30 46 q6 -7 12 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
-                <path d="M58 46 q6 -7 12 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
+                <path d="M30 46 q6 -7 12 0" stroke="#06231c" strokeWidth="4" fill="none" strokeLinecap="round" />
+                <path d="M58 46 q6 -7 12 0" stroke="#06231c" strokeWidth="4" fill="none" strokeLinecap="round" />
               </>
             ) : (
               <>
-                <ellipse cx="36" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#0a1240" />
-                <ellipse cx="64" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#0a1240" />
+                <ellipse cx="36" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#06231c" />
+                <ellipse cx="64" cy={45 + eyeY} rx="5" ry={state === "thinking" ? 3 : 6} fill="#06231c" />
                 <circle cx="38" cy={43 + eyeY} r="1.6" fill="#fff" />
                 <circle cx="66" cy={43 + eyeY} r="1.6" fill="#fff" />
               </>
@@ -80,11 +80,11 @@ export function DostOrb({ state, level = 0, size = 120, className = "" }: DostOr
           </g>
           {/* mouth */}
           {state === "sad" ? (
-            <path d="M40 70 q10 -8 20 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M40 70 q10 -8 20 0" stroke="#06231c" strokeWidth="4" fill="none" strokeLinecap="round" />
           ) : state === "speaking" || state === "happy" ? (
-            <ellipse cx="50" cy="66" rx="9" ry={mouthOpen / 2 + 2} fill="#0a1240" />
+            <ellipse cx="50" cy="66" rx="9" ry={mouthOpen / 2 + 2} fill="#06231c" />
           ) : (
-            <path d="M40 64 q10 9 20 0" stroke="#0a1240" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M40 64 q10 9 20 0" stroke="#06231c" strokeWidth="4" fill="none" strokeLinecap="round" />
           )}
         </svg>
       </motion.div>

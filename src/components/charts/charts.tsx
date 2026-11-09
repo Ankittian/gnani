@@ -45,21 +45,21 @@ function Tip({ active, payload, label, title }: { active?: boolean; payload?: Ti
   );
 }
 
-/** Tiny trend line for the hero card (sits on a blue surface, so it is white). */
+/** Tiny trend line for the hero card (sits on the hero surface, so it inherits the hero ink colour). */
 export function Sparkline({ data, label }: { data: { date: string; amount: number }[]; label: string }) {
   const id = useId();
   return (
-    <div className="h-14 w-full" role="img" aria-label={label}>
+    <div className="h-14 w-full text-hero-ink" role="img" aria-label={label}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 4, right: 2, bottom: 0, left: 2 }}>
           <defs>
             <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fff" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#fff" stopOpacity={0} />
+              <stop offset="0%" stopColor="currentColor" stopOpacity={0.3} />
+              <stop offset="100%" stopColor="currentColor" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <Tooltip cursor={{ stroke: "#fff", strokeOpacity: 0.4 }} content={<Tip title={dayLong} />} />
-          <Area type="monotone" dataKey="amount" name="Sales" stroke="#fff" strokeWidth={2} fill={`url(#${id})`} dot={false} activeDot={{ r: 4, fill: "#fff", stroke: "#2347d8", strokeWidth: 2 }} />
+          <Tooltip cursor={{ stroke: "currentColor", strokeOpacity: 0.4 }} content={<Tip title={dayLong} />} />
+          <Area type="monotone" dataKey="amount" name="Sales" stroke="currentColor" strokeWidth={2} fill={`url(#${id})`} dot={false} activeDot={{ r: 4, fill: "currentColor", stroke: "var(--hero)", strokeWidth: 2 }} />
           <XAxis dataKey="date" hide />
         </AreaChart>
       </ResponsiveContainer>

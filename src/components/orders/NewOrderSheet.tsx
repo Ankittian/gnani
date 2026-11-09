@@ -77,7 +77,7 @@ export function NewOrderSheet({ shop, onClose }: { shop: Shop; onClose: () => vo
               {progress.stage === "error" ? progress.error : STAGE_TEXT[progress.stage]}
               {progress.stage === "transcribing" && progress.chunks > 1 && ` (${progress.chunk}/${progress.chunks})`}
             </p>
-            {progress.language && <span className="mt-1 rounded-full bg-indigo-soft px-3 py-0.5 text-sm font-semibold text-indigo">{LANGUAGES[progress.language].nativeName}</span>}
+            {progress.language && <span className="mt-1 rounded-full bg-saffron-soft px-3 py-0.5 text-sm font-semibold text-saffron">{LANGUAGES[progress.language].nativeName}</span>}
             {progress.transcript && <p className="mt-3 max-h-32 overflow-y-auto rounded-2xl bg-card px-4 py-3 text-left text-sm">“{progress.transcript}”</p>}
             {progress.stage === "error" && (
               <button type="button" onClick={reset} className="mt-4 rounded-full bg-brand px-5 py-3 font-semibold text-brand-ink shadow-card">
@@ -108,7 +108,7 @@ export function NewOrderSheet({ shop, onClose }: { shop: Shop; onClose: () => vo
                 onClick={() => fileRef.current?.click()}
                 className="flex min-h-28 flex-col items-center justify-center gap-2 rounded-card border border-line bg-card font-semibold shadow-card"
               >
-                <FileAudio className="h-8 w-8 text-indigo" /> Audio file
+                <FileAudio className="h-8 w-8 text-saffron" /> Audio file
               </button>
               <button
                 type="button"

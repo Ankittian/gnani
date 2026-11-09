@@ -22,8 +22,8 @@ interface ActionCardProps {
 const TONE: Record<string, string> = {
   chili: "bg-chili-soft text-chili",
   leaf: "bg-leaf-soft text-leaf",
-  brand: "bg-brand-soft text-brand-ink",
-  indigo: "bg-indigo-soft text-indigo",
+  brand: "bg-brand-soft text-brand-strong",
+  saffron: "bg-saffron-soft text-saffron",
 };
 
 const AUTO_SECONDS = 3;
@@ -84,7 +84,7 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
               className="min-h-12 flex-1 rounded-2xl border border-line bg-bg px-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {action.customer.isNew && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-soft px-2.5 py-1 text-xs font-semibold text-indigo">
+              <span className="inline-flex items-center gap-1 rounded-full bg-saffron-soft px-2.5 py-1 text-xs font-semibold text-saffron">
                 <UserPlus className="h-3.5 w-3.5" /> New
               </span>
             )}

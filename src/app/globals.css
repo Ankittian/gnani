@@ -1,46 +1,54 @@
 @import "tailwindcss";
 
-/* ── Midnight theme tokens (dark-first; light via data-theme="light") ── */
+/* ── "Ledger" theme: warm paper, bottle green, turmeric. Light by default; dark follows the OS. ── */
 :root {
-  --brand: #3b6cff;
-  --brand-strong: #7a9bff;
-  --brand-soft: #131e4a;
+  --bg: #f5f2ea;
+  --card: #fdfbf6;
+  --ink: #16211c;
+  --muted: #6a7168;
+  --line: #e4dfd2;
+  --brand: #14594a;
+  --brand-strong: #14594a;
+  --brand-soft: #e1eee8;
   --brand-ink: #ffffff;
-  --leaf: #2dd4a0;
-  --leaf-soft: #0c2a26;
-  --chili: #fb7185;
-  --chili-soft: #2c1322;
-  --indigo: #8b7bff;
-  --indigo-soft: #1b1946;
-  --bg: #060a18;
-  --card: #0e1530;
-  --ink: #f2f4fb;
-  --muted: #8791b3;
-  --line: #1b2549;
-  --glow: rgba(59, 108, 255, 0.28);
-  --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 32px -20px rgba(0, 0, 0, 0.7);
-  color-scheme: dark;
+  --leaf: #3f8a3a;
+  --leaf-soft: #e4f0df;
+  --chili: #b93a2b;
+  --chili-soft: #f8e2dc;
+  --saffron: #a96a12;
+  --saffron-soft: #f8ebd0;
+  --sky: #2f6690;
+  --sky-soft: #e0ebf4;
+  --hero: #14594a;
+  --hero-ink: #f4faf7;
+  --shadow: 0 1px 0 rgba(22, 33, 28, 0.04);
+  color-scheme: light;
 }
 
-:root[data-theme="light"] {
-  --brand: #2f5bff;
-  --brand-strong: #2f5bff;
-  --brand-soft: #e8edff;
-  --brand-ink: #ffffff;
-  --leaf: #059669;
-  --leaf-soft: #d8f5ea;
-  --chili: #e11d48;
-  --chili-soft: #ffe3e9;
-  --indigo: #6d4aff;
-  --indigo-soft: #ece8ff;
-  --bg: #f3f5fb;
-  --card: #ffffff;
-  --ink: #0b1020;
-  --muted: #6a7392;
-  --line: #e4e8f3;
-  --glow: rgba(47, 91, 255, 0.14);
-  --shadow: 0 1px 2px rgba(11, 16, 32, 0.04), 0 14px 28px -18px rgba(40, 60, 140, 0.22);
-  color-scheme: light;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1512;
+    --card: #161e1a;
+    --ink: #eef1ea;
+    --muted: #8d9890;
+    --line: #26312b;
+    --brand: #3e9c7b;
+    --brand-strong: #6cc4a3;
+    --brand-soft: #173029;
+    --brand-ink: #06130e;
+    --leaf: #7bc46e;
+    --leaf-soft: #1a2a17;
+    --chili: #e8776a;
+    --chili-soft: #321b17;
+    --saffron: #e0a64a;
+    --saffron-soft: #30260f;
+    --sky: #7fb3de;
+    --sky-soft: #14263a;
+    --hero: #1a3a30;
+    --hero-ink: #eef1ea;
+    --shadow: none;
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
@@ -52,17 +60,21 @@
   --color-leaf-soft: var(--leaf-soft);
   --color-chili: var(--chili);
   --color-chili-soft: var(--chili-soft);
-  --color-indigo: var(--indigo);
-  --color-indigo-soft: var(--indigo-soft);
+  --color-saffron: var(--saffron);
+  --color-saffron-soft: var(--saffron-soft);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-hero: var(--hero);
+  --color-hero-ink: var(--hero-ink);
   --color-bg: var(--bg);
   --color-card: var(--card);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
   --shadow-card: var(--shadow);
-  --radius-card: 24px;
+  --radius-card: 18px;
   /* One stack, every script: the browser picks the Baloo cut that has the glyph. */
-  --font-sans: var(--font-inter), var(--font-baloo), var(--font-baloo-kannada), var(--font-baloo-tamil), var(--font-baloo-telugu),
+  --font-sans: var(--font-figtree), var(--font-baloo), var(--font-baloo-kannada), var(--font-baloo-tamil), var(--font-baloo-telugu),
     var(--font-baloo-malayalam), var(--font-baloo-bengali), var(--font-baloo-gujarati), var(--font-baloo-gurmukhi),
     "Noto Sans", system-ui, sans-serif;
 }
@@ -74,19 +86,10 @@ body {
 }
 
 body {
-  background-image: radial-gradient(120% 60% at 50% -10%, var(--glow), transparent 60%);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
   letter-spacing: -0.005em;
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: contain;
-}
-
-.glass {
-  background: color-mix(in srgb, var(--card) 94%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
 .tabular {
@@ -95,7 +98,7 @@ body {
 
 /* Safe-area aware bottom padding so content clears the nav + mic. */
 .pb-nav {
-  padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  padding-bottom: calc(104px + env(safe-area-inset-bottom));
 }
 
 /* ── Orb keyframes ───────────────────────────────────────────────── */
@@ -148,6 +151,14 @@ body {
     opacity: 0;
   }
 }
+@keyframes tip-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
 @keyframes wiggle {
   0%,
   100% {
@@ -176,6 +187,10 @@ body {
 }
 .animate-ring {
   animation: ring-pulse 1.6s ease-out infinite;
+}
+.animate-progress {
+  animation: tip-progress 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: left;
 }
 .animate-wiggle {
   animation: wiggle 0.5s ease-in-out 2;

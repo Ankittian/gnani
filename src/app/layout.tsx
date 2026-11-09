@@ -8,11 +8,14 @@ export const metadata: Metadata = {
   title: "Dukaan Dost",
   description: "Voice-first assistant for kirana stores — khata, stock, orders and hisaab in your language. Built on Gnani Prisma & Timbre.",
   applicationName: "Dukaan Dost",
-  appleWebApp: { capable: true, title: "Dukaan Dost", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Dukaan Dost", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#060a18",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f2ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1512" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

@@ -1,5 +1,5 @@
 import {
-  Inter,
+  Figtree,
   Baloo_2,
   Baloo_Bhai_2,
   Baloo_Chettan_2,
@@ -10,9 +10,9 @@ import {
   Baloo_Thambi_2,
 } from "next/font/google";
 
-export const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+export const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree", display: "swap" });
 
-// Indic scripts: Baloo cuts are fallbacks only (Inter has no Indic glyphs). Latin + Devanagari is preloaded; regional cuts load on demand when their glyphs appear.
+// Indic scripts: Baloo cuts are fallbacks only (Figtree has no Indic glyphs). Latin + Devanagari is preloaded; regional cuts load on demand when their glyphs appear.
 export const baloo = Baloo_2({ subsets: ["latin", "devanagari"], variable: "--font-baloo", display: "swap" });
 export const balooKannada = Baloo_Tamma_2({ subsets: ["kannada"], variable: "--font-baloo-kannada", display: "swap", preload: false });
 export const balooTamil = Baloo_Thambi_2({ subsets: ["tamil"], variable: "--font-baloo-tamil", display: "swap", preload: false });
@@ -23,7 +23,7 @@ export const balooGujarati = Baloo_Bhai_2({ subsets: ["gujarati"], variable: "--
 export const balooGurmukhi = Baloo_Paaji_2({ subsets: ["gurmukhi"], variable: "--font-baloo-gurmukhi", display: "swap", preload: false });
 
 export const fontVariables = [
-  inter,
+  figtree,
   baloo,
   balooKannada,
   balooTamil,

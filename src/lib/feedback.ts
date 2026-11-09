@@ -48,5 +48,5 @@ export function vibrate(ms = 30, enabled = true) {
 
 export async function celebrate() {
   const confetti = (await import("canvas-confetti")).default;
-  confetti({ particleCount: 120, spread: 75, origin: { y: 0.7 }, colors: ["#f59e0b", "#16a34a", "#fbbf24", "#4338ca"] });
+  confetti({ particleCount: 120, spread: 75, origin: { y: 0.7 }, colors: ["#14594a", "#c9821a", "#3f8a3a", "#e9c46a"] });
 }

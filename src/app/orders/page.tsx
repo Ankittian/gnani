@@ -38,7 +38,7 @@ export default function OrdersPage() {
       />
 
       {orders && orders.length === 0 ? (
-        <EmptyState icon="orders" tone="indigo" title="Koi order nahi" hint="Customer ka voice note daalein — packing list ban jaayegi." />
+        <EmptyState icon="orders" tone="saffron" title="Koi order nahi" />
       ) : (
         <ul className="mx-4 mt-2 space-y-3">
           {(orders ?? []).map((o) => {

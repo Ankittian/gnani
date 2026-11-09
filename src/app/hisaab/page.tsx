@@ -115,7 +115,7 @@ function HisaabInner() {
         <StatChip icon="sales" label={tr("statSales")} value={formatINR(s.salesPaise)} tone="leaf" />
         <StatChip icon="credit" label={tr("statCreditGiven")} value={formatINR(s.creditGivenPaise)} tone="chili" />
         <StatChip icon="collected" label={tr("statCollected")} value={formatINR(s.paymentsPaise)} tone="leaf" />
-        <StatChip icon="orders" label="Delivered" value={String(s.ordersDelivered)} tone="indigo" />
+        <StatChip icon="orders" label="Delivered" value={String(s.ordersDelivered)} tone="saffron" />
       </div>
 
       <Card className="mx-4 mt-3 text-center">

@@ -43,7 +43,7 @@ export default function ReorderPage() {
                     <p className="truncate text-lg font-semibold">{g.supplier?.name ?? "Bina distributor"}</p>
                     <p className="text-xs text-muted">{g.items.length} items</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-indigo-soft px-3 py-1 text-sm font-semibold text-indigo">{LANGUAGES[sLang].nativeName}</span>
+                  <span className="shrink-0 rounded-full bg-saffron-soft px-3 py-1 text-sm font-semibold text-saffron">{LANGUAGES[sLang].nativeName}</span>
                 </div>
                 <ul className="divide-y divide-line">
                   {g.items.map(({ product: p, qty: suggested }) => (
@@ -82,7 +82,7 @@ export default function ReorderPage() {
                 <button
                   type="button"
                   onClick={() => setSending(g)}
-                  className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-indigo text-lg font-semibold text-white shadow-card"
+                  className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-saffron text-lg font-semibold text-white shadow-card"
                 >
                   <Send className="h-5 w-5" /> {tr("sendVoiceNote")} · {LANGUAGES[sLang].nativeName}
                 </button>

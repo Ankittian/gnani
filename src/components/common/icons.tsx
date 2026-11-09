@@ -102,13 +102,14 @@ const SEMANTIC = {
 } as const;
 
 export type IconKey = keyof typeof SEMANTIC;
-export type Tone = "leaf" | "chili" | "brand" | "indigo" | "muted";
+export type Tone = "leaf" | "chili" | "brand" | "saffron" | "sky" | "muted";
 
 const TONE: Record<Tone, string> = {
   leaf: "bg-leaf-soft text-leaf",
   chili: "bg-chili-soft text-chili",
   brand: "bg-brand-soft text-brand-strong",
-  indigo: "bg-indigo-soft text-indigo",
+  saffron: "bg-saffron-soft text-saffron",
+  sky: "bg-sky-soft text-sky",
   muted: "bg-line/70 text-muted",
 };
 

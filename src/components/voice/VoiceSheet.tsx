@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Keyboard, Mic, RotateCcw, Send, Square, Undo2, X } from "@/components/common/icons";
 import { DostOrb, type OrbState } from "@/components/orb/DostOrb";
+import { TipLine } from "@/components/common/Splash";
 import { ActionCard } from "@/components/voice/ActionCard";
 import { useShop } from "@/hooks/useShop";
 import { useVoiceCommand, type VoicePhase } from "@/hooks/useVoiceCommand";
@@ -78,13 +79,13 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
       <motion.button
         type="button"
         aria-label="Close"
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/45"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onClick={close}
       />
       <motion.div
-        className="relative z-10 max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-[32px] bg-bg px-4 pb-8 pt-3"
+        className="relative z-10 max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-[28px] bg-bg px-4 pb-8 pt-3"
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 320, damping: 32 }}
@@ -107,6 +108,8 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
           <p className="mt-3 min-h-7 px-4 text-center text-lg font-semibold" aria-live="polite">
             {status}
           </p>
+
+          {(phase === "transcribing" || phase === "understanding" || phase === "committing") && <TipLine lang={lang} className="mt-1 w-full max-w-xs" />}
 
           {recording && !micDenied && (
             <div className="mt-2 flex items-center gap-3">
@@ -131,7 +134,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
             >
               <div className="mb-1 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-muted">
                 <span>Suna</span>
-                {detected && <span className="rounded-full bg-indigo-soft px-2 py-0.5 normal-case text-indigo">{detected.nativeName}</span>}
+                {detected && <span className="rounded-full bg-saffron-soft px-2 py-0.5 normal-case text-saffron">{detected.nativeName}</span>}
               </div>
               <p className="text-lg leading-snug">“{state.transcript}”</p>
             </motion.div>
@@ -214,7 +217,7 @@ export function VoiceSheet({ onClose, initialText }: { onClose: () => void; init
                 className="min-h-14 flex-1 rounded-2xl border border-line bg-card px-4 text-base focus:outline-none focus:ring-2 focus:ring-brand"
                 aria-label={tr("typeInstead")}
               />
-              <button type="submit" aria-label="Send" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo text-white">
+              <button type="submit" aria-label="Send" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-saffron text-white">
                 <Send className="h-5 w-5" />
               </button>
             </form>

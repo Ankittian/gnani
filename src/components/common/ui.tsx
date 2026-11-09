@@ -22,7 +22,7 @@ export function PageHeader({ title, subtitle, back, right }: { title: string; su
   );
 }
 
-const AVATAR_COLORS = ["#3b6cff", "#7c5cff", "#0ea5c6", "#10a37f", "#e08a1e", "#d6489b", "#e5603a", "#5b6ee1"];
+const AVATAR_COLORS = ["#14594a", "#8a5a2b", "#3f5e7a", "#7a4e6d", "#5b6b2e", "#a0452f", "#4b5563", "#2f6f6a"];
 
 export function Avatar({ name, size = 44 }: { name: string; size?: number }) {
   let h = 0;
@@ -49,7 +49,7 @@ export function BalancePill({ balance, size = "md" }: { balance: number; size?: 
 }
 
 export function StatChip({ icon, label, value, tone }: { icon: IconKey; label: string; value: string; tone: Exclude<Tone, "muted"> }) {
-  const toneCls = { leaf: "text-leaf", chili: "text-chili", brand: "text-brand-strong", indigo: "text-indigo" }[tone];
+  const toneCls = { leaf: "text-leaf", chili: "text-chili", brand: "text-brand-strong", saffron: "text-saffron", sky: "text-sky" }[tone];
   return (
     <div className="rounded-card border border-line bg-card p-4 shadow-card">
       <div className="flex items-center gap-2 text-xs text-muted">
@@ -65,7 +65,7 @@ export function ModuleTile({ href, icon, tone = "brand", label, sub, badge }: { 
   return (
     <Link
       href={href}
-      className="relative flex min-h-28 flex-col justify-between gap-4 rounded-card border border-line bg-card p-4 shadow-card transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo/40"
+      className="relative flex min-h-28 flex-col justify-between gap-4 rounded-card border border-line bg-card p-4 shadow-card transition-colors active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
     >
       <IconTile icon={icon} tone={tone} size="lg" />
       <span>

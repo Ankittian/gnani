@@ -1,13 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
-import { AnimatePresence, motion } from "motion/react";
 import { IconTile, Settings, type IconKey } from "@/components/common/icons";
-import { DostOrb } from "@/components/orb/DostOrb";
 import { Avatar, ModuleTile, timeAgo } from "@/components/common/ui";
-import { useVoice } from "@/components/voice/VoiceProvider";
 import { useShop } from "@/hooks/useShop";
 import { getDb } from "@/lib/db/schema";
 import { formatINR } from "@/lib/domain/money";
@@ -15,11 +12,6 @@ import { isLow } from "@/lib/domain/stock";
 import { summarizeDay, weekSales } from "@/lib/domain/summary";
 import { Sparkline } from "@/components/charts/charts";
 import { LANGUAGES } from "@/lib/i18n/languages";
-
-const HINTS: Record<string, string[]> = {
-  "hi-IN": ["Sharma ji ne 340 ka saamaan udhaar liya", "Fatima ji ne 500 diye", "Maggi khatam ho gaya", "Suresh ka kitna baaki hai?", "Aaj ka hisaab sunao"],
-  "en-IN": ["Joseph paid 500 rupees", "Sharma ji took 2 kg rice on credit, 140 rupees", "Parle-G only 2 packets left", "How much does Murugan owe?"],
-};
 
 interface Activity {
   id: string;
@@ -33,8 +25,6 @@ interface Activity {
 
 export default function HomePage() {
   const { shop, lang, tr } = useShop();
-  const voice = useVoice();
-  const [hintIdx, setHintIdx] = useState(0);
 
   const data = useLiveQuery(async () => {
     const db = getDb();
@@ -78,12 +68,6 @@ export default function HomePage() {
     return items.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 6);
   }, [data]);
 
-  const hints = HINTS[lang] ?? [LANGUAGES[lang].sampleCommand, ...HINTS["hi-IN"]];
-  useEffect(() => {
-    const id = setInterval(() => setHintIdx((i) => (i + 1) % hints.length), 3500);
-    return () => clearInterval(id);
-  }, [hints.length]);
-
   if (!shop) return null;
 
   return (
@@ -102,64 +86,39 @@ export default function HomePage() {
       </header>
 
       {/* Hero: today's sales — the one number to notice first */}
-      <section aria-label={tr("todayHisaab")} className="relative mt-5 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-[#2a56ff] via-[#2347d8] to-[#16206b] p-5 text-white shadow-[0_24px_48px_-24px_var(--glow)]">
-        <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-        <p className="relative text-sm text-white/70">{tr("statSales")}</p>
-        <p className="tabular relative mt-1 text-[40px] font-semibold leading-none tracking-tight">{formatINR(summary?.salesPaise ?? 0)}</p>
-        <div className="relative -mx-1 mt-2">
+      <section aria-label={tr("todayHisaab")} className="mt-5 rounded-[22px] bg-hero p-5 text-hero-ink">
+        <p className="text-sm opacity-75">{tr("statSales")}</p>
+        <p className="tabular mt-1 text-[40px] font-semibold leading-none tracking-tight">{formatINR(summary?.salesPaise ?? 0)}</p>
+        <div className="-mx-1 mt-2">
           <Sparkline data={sales7} label="Cash sales, last 7 days" />
         </div>
-        <div className="relative mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-3 grid grid-cols-3 divide-x divide-current/15 border-t border-current/15 pt-3">
           {[
             { label: tr("statCreditGiven"), value: formatINR(summary?.creditGivenPaise ?? 0) },
             { label: tr("statCollected"), value: formatINR(summary?.paymentsPaise ?? 0) },
             { label: tr("statLowStock"), value: String(lowCount) },
-          ].map((s) => (
-            <div key={s.label} className="rounded-2xl bg-white/10 px-3 py-2.5 backdrop-blur">
-              <p className="truncate text-[11px] text-white/65">{s.label}</p>
+          ].map((s, i) => (
+            <div key={s.label} className={i === 0 ? "pr-3" : "px-3"}>
+              <p className="truncate text-[11px] opacity-70">{s.label}</p>
               <p className="tabular mt-0.5 truncate text-base font-semibold">{s.value}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Dost + rotating try-saying hint */}
-      <button
-        type="button"
-        onClick={() => voice.open()}
-        className="mt-3 flex w-full items-center gap-3 rounded-card border border-line bg-card p-3 pr-4 text-left shadow-card transition-transform active:scale-[0.99]"
-      >
-        <DostOrb state="idle" size={64} />
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-brand-strong">{tr("trySaying")}</p>
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={hintIdx}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="text-[15px] font-medium leading-snug"
-            >
-              “{hints[hintIdx % hints.length]}”
-            </motion.p>
-          </AnimatePresence>
-          <p className="mt-0.5 text-xs text-muted">{tr("tapToSpeak")}</p>
-        </div>
-      </button>
-
       {/* Modules */}
-      <section className="mt-3 grid grid-cols-2 gap-3">
+      <section className="mt-4 grid grid-cols-2 gap-3">
         <ModuleTile href="/khata" icon="khata" tone="brand" label={tr("modKhata")} sub={lang !== "en-IN" ? "Khata" : null} />
-        <ModuleTile href="/stock" icon="stock" tone="leaf" label={tr("modStock")} sub={lang !== "en-IN" ? "Stock" : null} badge={lowCount || undefined} />
-        <ModuleTile href="/orders" icon="orders" tone="indigo" label={tr("modOrders")} sub={lang !== "en-IN" ? "Orders" : null} badge={newOrders || undefined} />
-        <ModuleTile href="/hisaab" icon="hisaab" tone="chili" label={tr("modHisaab")} sub={lang !== "en-IN" ? "Hisaab" : null} />
+        <ModuleTile href="/stock" icon="stock" tone="sky" label={tr("modStock")} sub={lang !== "en-IN" ? "Stock" : null} badge={lowCount || undefined} />
+        <ModuleTile href="/orders" icon="orders" tone="saffron" label={tr("modOrders")} sub={lang !== "en-IN" ? "Orders" : null} badge={newOrders || undefined} />
+        <ModuleTile href="/hisaab" icon="hisaab" tone="leaf" label={tr("modHisaab")} sub={lang !== "en-IN" ? "Hisaab" : null} />
       </section>
 
       {/* Recent activity */}
       <section className="mt-6">
         <h2 className="mb-3 text-base font-semibold">{tr("recent")}</h2>
         {activity.length === 0 ? (
-          <p className="rounded-card border border-dashed border-line px-4 py-6 text-center text-muted">Abhi kuch nahi — mic dabake shuru karein</p>
+          <p className="rounded-card border border-line bg-card px-4 py-6 text-center text-sm text-muted">No activity yet</p>
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-card">
             {activity.map((a) => (

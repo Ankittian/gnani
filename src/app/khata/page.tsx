@@ -54,7 +54,6 @@ export default function KhataPage() {
         <EmptyState
           icon="khata"
           title={q ? "Koi nahi mila" : "Khata khaali hai"}
-          hint="Bolke shuru karein: “Sharma ji ne 200 udhaar liya”"
           action={
             <button type="button" onClick={() => voice.open()} className="rounded-full bg-brand px-5 py-3 font-semibold text-brand-ink shadow-card">
               {tr("tapToSpeak")}

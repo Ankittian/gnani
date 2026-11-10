@@ -7,6 +7,10 @@
 import type { ComponentProps } from "react";
 import {
   Add01Icon,
+  AiBrain01Icon,
+  Clock01Icon,
+  Download01Icon,
+  Upload01Icon,
   Alert02Icon,
   Analytics01Icon,
   ArrowLeft01Icon,
@@ -84,6 +88,10 @@ export const Trash2 = make(Delete02Icon);
 export const Undo2 = make(Undo02Icon);
 export const UserPlus = make(UserAdd01Icon);
 export const X = make(Cancel01Icon);
+export const Upload = make(Upload01Icon);
+export const Download = make(Download01Icon);
+export const Brain = make(AiBrain01Icon);
+export const Clock = make(Clock01Icon);
 
 /* ── Semantic icons (replace emoji) ─────────────────────────────── */
 const SEMANTIC = {
@@ -99,6 +107,8 @@ const SEMANTIC = {
   delivered: CheckmarkCircle02Icon,
   celebrate: PartyIcon,
   notFound: UserSearch01Icon,
+  memory: AiBrain01Icon,
+  upload: Upload01Icon,
 } as const;
 
 export type IconKey = keyof typeof SEMANTIC;

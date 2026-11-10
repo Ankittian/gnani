@@ -8,6 +8,7 @@ import {
   clearAll,
   commitAction,
   getShop,
+  importStockCsv,
   recordUsage,
   saveShop,
   setOrderStatus,
@@ -191,5 +192,93 @@ describe("misc", () => {
     expect(ctx.customers.map((c) => c.id)).toEqual(["c1"]);
     await clearAll(db);
     expect(await db.customers.count()).toBe(0);
+  });
+});
+
+describe("connected flows — selling takes it off the shelf", () => {
+  const items = [
+    { name: "Maggi", qty: 3, unit: "packet" as const, productId: "p1", pricePaise: 1400 },
+    { name: "chawal", qty: 500, unit: "g" as const, productId: null, pricePaise: null },
+  ];
+  beforeEach(async () => {
+    await addProduct("p1", "Maggi", 10, 1400);
+    const now = nowIso();
+    await db.products.add({ id: "p2", name: "Chawal", aliases: ["rice"], unit: "kg", stockQty: 5, reorderLevel: 2, pricePaise: 6000, supplierId: null, emoji: "🍚", createdAt: now, updatedAt: now });
+  });
+
+  it("udhaar with items reduces stock, links the movement to the entry, and undo puts it back", async () => {
+    await addCustomer("c1", "Ramesh");
+    const r = await commitAction(db, action({ customer: { id: "c1", name: "Ramesh", isNew: false }, amountPaise: 7200, items }), meta);
+    expect((await db.products.get("p1"))!.stockQty).toBe(7);
+    expect((await db.products.get("p2"))!.stockQty).toBe(4.5);
+    const evs = await db.stockEvents.toArray();
+    expect(evs).toHaveLength(2);
+    expect(evs.every((e) => e.source === "ledger" && e.refId === r.createdIds.ledger)).toBe(true);
+    await undoCommit(db, r);
+    expect((await db.products.get("p1"))!.stockQty).toBe(10);
+    expect((await db.products.get("p2"))!.stockQty).toBe(5);
+    expect(await db.stockEvents.count()).toBe(0);
+  });
+
+  it("cash sale with items reduces stock (never below zero)", async () => {
+    const r = await commitAction(db, action({ intent: "cash_sale", amountPaise: 20000, items: [{ ...items[0], qty: 15 }] }), meta);
+    expect((await db.products.get("p1"))!.stockQty).toBe(0);
+    expect((await db.stockEvents.toArray())[0]).toMatchObject({ source: "sale", refId: r.createdIds.sale, delta: -10 });
+    await undoCommit(db, r);
+    expect((await db.products.get("p1"))!.stockQty).toBe(10);
+  });
+
+  it("payments never touch stock", async () => {
+    await addCustomer("c1", "Ramesh", [], 5000);
+    await commitAction(db, action({ intent: "record_payment", customer: { id: "c1", name: "Ramesh", isNew: false }, amountPaise: 1000, items }), meta);
+    expect(await db.stockEvents.count()).toBe(0);
+  });
+
+  it("delivering an order reduces stock exactly once; khata can be added only once", async () => {
+    await addCustomer("c1", "Joseph");
+    const r = await commitAction(db, action({ intent: "create_order", customer: { id: "c1", name: "Joseph", isNew: false }, items: [items[0]] }), meta);
+    const id = r.createdIds.order!;
+    expect((await db.products.get("p1"))!.stockQty).toBe(10); // a new order doesn't touch the shelf
+    await setOrderStatus(db, id, "packed");
+    await setOrderStatus(db, id, "delivered");
+    await setOrderStatus(db, id, "delivered");
+    expect((await db.products.get("p1"))!.stockQty).toBe(7);
+    expect((await db.orders.get(id))!.stockDeducted).toBe(true);
+    expect((await db.stockEvents.toArray())[0]).toMatchObject({ source: "order", refId: id });
+
+    const l = await addLedgerFromOrder(db, id);
+    expect((await db.orders.get(id))!.ledgerEntryId).toBe(l.ledgerId);
+    await expect(addLedgerFromOrder(db, id)).rejects.toThrow("order_already_in_khata");
+    expect((await db.products.get("p1"))!.stockQty).toBe(7); // khata from an order doesn't draw stock again
+  });
+});
+
+describe("importStockCsv", () => {
+  it("updates matched products, creates new ones and their suppliers, and logs import movements", async () => {
+    await addProduct("p1", "Maggi Noodles", 2, 1200, ["maggi"]);
+    const csv = "name,stock,unit,price,reorder_level,supplier,aliases\nmaggi,40,packet,14,10,,मैगी\nPaneer,6,packet,90,3,Sai Wholesale,paneer|पनीर\nSalt,,packet,,,,";
+    const res = await importStockCsv(db, csv);
+    expect(res).toMatchObject({ created: 2, updated: 1, errors: [] });
+    const maggi = (await db.products.get("p1"))!;
+    expect(maggi).toMatchObject({ stockQty: 40, pricePaise: 1400, reorderLevel: 10 });
+    expect(maggi.aliases).toEqual(["maggi", "मैगी"]);
+    const paneer = (await db.products.toArray()).find((p) => p.name === "Paneer")!;
+    const sup = await db.suppliers.get(paneer.supplierId!);
+    expect(sup?.name).toBe("Sai Wholesale");
+    expect(paneer.aliases).toEqual(["paneer", "पनीर"]);
+    const salt = (await db.products.toArray()).find((p) => p.name === "Salt")!;
+    expect(salt).toMatchObject({ stockQty: 0, pricePaise: null, reorderLevel: 2 });
+    const evs = await db.stockEvents.toArray();
+    expect(evs.every((e) => e.source === "import")).toBe(true);
+    expect(evs.find((e) => e.productId === "p1")?.delta).toBe(38);
+  });
+
+  it("reuses an existing supplier by name and reports bad rows without importing them", async () => {
+    await db.suppliers.add({ id: "s1", name: "Agarwal Distributors", language: "hi-IN", createdAt: nowIso() });
+    const res = await importStockCsv(db, "name,stock,unit,supplier\nTea,4,packet,agarwal distributors\nOil,x,l,");
+    expect(res.created).toBe(1);
+    expect(res.errors).toEqual([{ line: 3, code: "badNumber", field: "stock" }]);
+    expect(await db.suppliers.count()).toBe(1);
+    expect((await db.products.toArray())[0].supplierId).toBe("s1");
   });
 });

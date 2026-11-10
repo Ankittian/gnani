@@ -16,7 +16,7 @@ const TABS: { href: string; key: MessageKey; icon: typeof Home; match: (p: strin
     href: "/more",
     key: "navMore",
     icon: LayoutGrid,
-    match: (p) => ["/more", "/orders", "/hisaab", "/settings"].some((x) => p.startsWith(x)),
+    match: (p) => ["/more", "/orders", "/hisaab", "/settings", "/memory"].some((x) => p.startsWith(x)),
   },
 ];
 

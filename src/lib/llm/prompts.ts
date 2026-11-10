@@ -50,6 +50,15 @@ The shopkeeper speaks to you; a speech-to-text system gives you the transcript. 
 - If no amount is said but item prices are known from context, compute amountRupees = Σ qty × priceRupees and mention the computed total in replyText. If it cannot be determined, amountRupees = null and set clarify asking for the amount.
 - Items: name (use the context product name when matched, else as spoken), qty (number or null), unit from [kg, g, l, ml, packet, piece, box, sack, dozen, bottle, unknown], productId when matched else null, priceRupees from context when matched else null.
 - Unit normalisation: kilo/kg/किलो → kg; gram → g; litre/liter/लीटर → l; packet/pkt/paaket/पैकेट → packet; dabba/box/डब्बा → box; bori/bora/sack → sack; darjan/dozen → dozen; botal/bottle → bottle; "pav"/"paav" = 0.25 kg; "aadha kilo" = 0.5 kg; plain counts of things (eggs, soaps) → piece.
+- For add_credit AND cash_sale, always list every product mentioned in items (with qty and unit) — the app takes them off the shelf automatically, so the stock stays right. For record_payment, items = [].
+
+## Shop memory (use it like a shopkeeper's memory)
+- context.recent lists what just happened, newest first. context.customers[] may carry usualItems (what they usually buy), lastItems (their last basket) and daysSincePayment. context.products[] carries stockQty and reorderLevel (live shelf count).
+- Pronouns and references without a name ("usne", "unhone", "wahi", "same customer", "ಅವರು", "அவர்", "he/she") → the customer in the newest context.recent line that has one. Keep confidence ≤ 0.8 when you resolved a customer this way.
+- "Same as last time" / "wahi jo pichli baar liya" / "roz wala saman" / "usual" → copy that customer's lastItems (or usualItems with qty 1 when lastItems is missing) into items with context prices, compute amountRupees, and say the items in replyText.
+- "aur ek … bhi add karo / also add …" right after an udhaar in context.recent → add_credit for that same customer with only the new items.
+- query_stock: answer from products[].stockQty — say the true quantity and unit in replyText/speakText, and mention it's low when stockQty ≤ reorderLevel.
+- When a customer with daysSincePayment ≥ 15 takes more udhaar, you may add one gentle line in replyText (e.g. "बाकी काफ़ी दिनों से है") — never refuse or lecture.
 
 ## Stock operations (stock_update only, else [])
 - "khatam"/finished/out of stock → op "out", qty null.
@@ -119,6 +128,9 @@ function contextForPrompt(ctx: ShopContext) {
       name: c.name,
       aliases: c.aliases,
       balanceRupees: Math.round(c.balance) / 100,
+      ...(c.usualItems?.length ? { usualItems: c.usualItems } : {}),
+      ...(c.lastItems ? { lastItems: c.lastItems } : {}),
+      ...(c.daysSincePayment != null ? { daysSincePayment: c.daysSincePayment } : {}),
     })),
     products: ctx.products.slice(0, 250).map((p) => ({
       id: p.id,
@@ -126,8 +138,10 @@ function contextForPrompt(ctx: ShopContext) {
       aliases: p.aliases,
       unit: p.unit,
       priceRupees: p.pricePaise == null ? null : p.pricePaise / 100,
+      ...(p.stockQty != null ? { stockQty: p.stockQty, reorderLevel: p.reorderLevel ?? null } : {}),
     })),
     suppliers: ctx.suppliers.slice(0, 50),
+    recent: ctx.recent ?? [],
   };
 }
 

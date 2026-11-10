@@ -87,6 +87,9 @@ export interface Product {
 
 export type StockOpKind = "set" | "add" | "remove" | "out";
 
+/** What caused a stock movement — lets every movement link back to the khata entry, sale or order behind it. */
+export type StockSource = "voice" | "manual" | "ledger" | "sale" | "order" | "import";
+
 export interface StockEvent {
   id: string;
   productId: string;
@@ -94,6 +97,10 @@ export interface StockEvent {
   delta: number;
   transcript: string | null;
   createdAt: IsoUtc;
+  /** Optional for rows written before v2. */
+  source?: StockSource;
+  /** Ledger entry / sale / order id when `source` is one of those. */
+  refId?: string | null;
 }
 
 export interface Sale {
@@ -123,6 +130,10 @@ export interface Order {
   audioDurationSec: number;
   createdAt: IsoUtc;
   updatedAt: IsoUtc;
+  /** Set once the order's priced total was added to the customer's khata (prevents double udhaar). */
+  ledgerEntryId?: string | null;
+  /** true once delivering the order has taken its items out of stock. */
+  stockDeducted?: boolean;
 }
 
 export interface UsageDay {
@@ -135,7 +146,27 @@ export interface UsageDay {
 
 /** Minimal context sent to /api/understand so the LLM can resolve names. */
 export interface ShopContext {
-  customers: { id: string; name: string; aliases: string[]; balance: Paise }[];
-  products: { id: string; name: string; aliases: string[]; unit: Unit; pricePaise: Paise | null }[];
+  customers: {
+    id: string;
+    name: string;
+    aliases: string[];
+    balance: Paise;
+    /** Memory: products this customer buys most often (names). */
+    usualItems?: string[];
+    /** Memory: their most recent basket, e.g. "2 kg Chawal, 1 packet Maggi". */
+    lastItems?: string | null;
+    daysSincePayment?: number | null;
+  }[];
+  products: {
+    id: string;
+    name: string;
+    aliases: string[];
+    unit: Unit;
+    pricePaise: Paise | null;
+    stockQty?: number;
+    reorderLevel?: number;
+  }[];
   suppliers: { id: string; name: string }[];
+  /** Memory: the last few things that happened in the shop, newest first (English, one line each). */
+  recent?: string[];
 }

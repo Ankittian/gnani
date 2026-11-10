@@ -6,7 +6,10 @@ import { applyLedger, entryFromAction, ledgerTypeFor } from "@/lib/domain/ledger
 import { matchCustomer, matchProduct } from "@/lib/domain/match";
 import { orderToLedgerItems, orderTotalPaise } from "@/lib/domain/orders";
 import { applyStockOp } from "@/lib/domain/stock";
-import type { Customer, OrderStatus, Paise, Product, Shop, ShopContext, UsageDay } from "@/lib/types";
+import { drawsForItems } from "@/lib/domain/inventory";
+import { parseStockCsv, planStockImport, type StockCsvError } from "@/lib/domain/csv";
+import { buildTimeline, customerMemory, itemsLine, recentForLlm } from "@/lib/domain/memory";
+import type { Customer, LineItem, OrderStatus, Paise, Product, Shop, ShopContext, StockSource, Supplier, UsageDay } from "@/lib/types";
 import { type DukaanDB, newId, nowIso } from "./schema";
 
 // ---------- shop ----------
@@ -54,6 +57,67 @@ export async function buildShopContext(db: DukaanDB): Promise<ShopContext> {
     products: products.map((p) => ({ id: p.id, name: p.name, aliases: p.aliases, unit: p.unit, pricePaise: p.pricePaise })),
     suppliers: suppliers.map((s) => ({ id: s.id, name: s.name })),
   };
+}
+
+/**
+ * Context for the voice brain: the shop's names plus its memory — live stock, each customer's
+ * usual and last basket, days since they paid, and what just happened (newest first).
+ */
+export async function buildMemoryContext(db: DukaanDB, now = new Date()): Promise<ShopContext> {
+  const since = new Date(now.getTime() - 60 * 864e5).toISOString();
+  const [base, products, ledger, sales, orders, stockEvents, customers] = await Promise.all([
+    buildShopContext(db),
+    db.products.toArray(),
+    db.ledgerEntries.where("createdAt").aboveOrEqual(since).toArray(),
+    db.sales.where("createdAt").aboveOrEqual(since).toArray(),
+    db.orders.toArray(),
+    db.stockEvents.where("createdAt").aboveOrEqual(since).toArray(),
+    db.customers.toArray(),
+  ]);
+  const byId = new Map(products.map((p) => [p.id, p]));
+  const timeline = buildTimeline({ customers, products, ledger, sales, orders, stockEvents });
+  return {
+    ...base,
+    customers: base.customers.map((c) => {
+      const m = customerMemory(c.id, ledger, orders, now);
+      return {
+        ...c,
+        usualItems: m.usualItems.slice(0, 3).map((u) => u.name),
+        lastItems: m.lastItems.length ? itemsLine(m.lastItems) : null,
+        daysSincePayment: m.daysSincePayment,
+      };
+    }),
+    products: base.products.map((p) => ({ ...p, stockQty: byId.get(p.id)?.stockQty ?? 0, reorderLevel: byId.get(p.id)?.reorderLevel ?? 0 })),
+    recent: recentForLlm(timeline, now, 6),
+  };
+}
+
+const round3 = (n: number) => Math.round(n * 1000) / 1000;
+
+/** Take sold/delivered items off the shelf. Returns the movement ids; records the old qty in `prev` (first touch only). */
+async function drawStock(
+  db: DukaanDB,
+  items: Pick<LineItem, "name" | "qty" | "unit" | "productId">[],
+  source: StockSource,
+  refId: string,
+  transcript: string | null,
+  prev?: Record<string, number>,
+): Promise<string[]> {
+  const products = await db.products.toArray();
+  const ids: string[] = [];
+  const now = nowIso();
+  for (const d of drawsForItems(items, products)) {
+    const p = await db.products.get(d.productId);
+    if (!p) continue;
+    if (prev && !(p.id in prev)) prev[p.id] = p.stockQty;
+    const next = round3(applyStockOp(p.stockQty, "remove", d.qty));
+    if (next === p.stockQty) continue; // already empty — nothing to move
+    await db.products.update(p.id, { stockQty: next, updatedAt: now });
+    const id = newId();
+    await db.stockEvents.add({ id, productId: p.id, op: "remove", delta: round3(next - p.stockQty), transcript, createdAt: now, source, refId });
+    ids.push(id);
+  }
+  return ids;
 }
 
 // ---------- commit / undo ----------
@@ -148,6 +212,14 @@ export async function commitAction(db: DukaanDB, action: Action, meta: CommitMet
         Object.assign(result, { kind: "ledger", customerId: customer.id, newBalance });
         result.createdIds.ledger = entry.id;
         result.previous.balance = customer.balance;
+        if (action.intent === "add_credit" && action.items.length) {
+          const prev: Record<string, number> = {};
+          const moved = await drawStock(db, action.items, "ledger", entry.id, meta.transcript, prev);
+          if (moved.length) {
+            result.createdIds.stockEvents = moved;
+            result.previous.stock = prev;
+          }
+        }
         break;
       }
       case "query_balance":
@@ -161,6 +233,14 @@ export async function commitAction(db: DukaanDB, action: Action, meta: CommitMet
         await db.sales.add({ id, items: action.items, amount: action.amountPaise!, transcript: meta.transcript, createdAt: now, deletedAt: null });
         result.kind = "sale";
         result.createdIds.sale = id;
+        if (action.items.length) {
+          const prev: Record<string, number> = {};
+          const moved = await drawStock(db, action.items, "sale", id, meta.transcript, prev);
+          if (moved.length) {
+            result.createdIds.stockEvents = moved;
+            result.previous.stock = prev;
+          }
+        }
         break;
       }
       case "stock_update": {
@@ -191,7 +271,7 @@ export async function commitAction(db: DukaanDB, action: Action, meta: CommitMet
           const next = applyStockOp(current, op.op, op.qty);
           await db.products.update(product.id, { stockQty: next, updatedAt: now });
           const evId = newId();
-          await db.stockEvents.add({ id: evId, productId: product.id, op: op.op, delta: next - current, transcript: meta.transcript, createdAt: now });
+          await db.stockEvents.add({ id: evId, productId: product.id, op: op.op, delta: next - current, transcript: meta.transcript, createdAt: now, source: "voice", refId: null });
           eventIds.push(evId);
         }
         result.kind = "stock";
@@ -264,7 +344,7 @@ export async function undoCommit(db: DukaanDB, result: CommitResult): Promise<vo
       const events = (await db.stockEvents.bulkGet(createdIds.stockEvents)).filter((e) => e != null);
       for (const ev of [...events].reverse()) {
         const p = await db.products.get(ev.productId);
-        if (p) await db.products.update(p.id, { stockQty: Math.max(0, p.stockQty - ev.delta), updatedAt: now });
+        if (p) await db.products.update(p.id, { stockQty: Math.max(0, round3(p.stockQty - ev.delta)), updatedAt: now });
       }
       await db.stockEvents.bulkDelete(createdIds.stockEvents);
     }
@@ -274,8 +354,15 @@ export async function undoCommit(db: DukaanDB, result: CommitResult): Promise<vo
 
 // ---------- orders & stock helpers ----------
 
+/** Delivering an order takes its items off the shelf — exactly once. */
 export async function setOrderStatus(db: DukaanDB, id: string, status: OrderStatus): Promise<void> {
-  await db.orders.update(id, { status, updatedAt: nowIso() });
+  await db.transaction("rw", db.orders, db.products, db.stockEvents, async () => {
+    const o = await db.orders.get(id);
+    if (!o) return;
+    const deduct = status === "delivered" && !o.stockDeducted;
+    if (deduct) await drawStock(db, o.items, "order", o.id, null);
+    await db.orders.update(id, { status, updatedAt: nowIso(), ...(deduct ? { stockDeducted: true } : {}) });
+  });
 }
 
 export async function toggleOrderItem(db: DukaanDB, id: string, index: number): Promise<void> {
@@ -294,7 +381,7 @@ export async function adjustStock(db: DukaanDB, productId: string, delta: number
     const now = nowIso();
     const next = Math.max(0, p.stockQty + delta);
     await db.products.update(productId, { stockQty: next, updatedAt: now });
-    await db.stockEvents.add({ id: newId(), productId, op: delta >= 0 ? "add" : "remove", delta: next - p.stockQty, transcript: null, createdAt: now });
+    await db.stockEvents.add({ id: newId(), productId, op: delta >= 0 ? "add" : "remove", delta: next - p.stockQty, transcript: null, createdAt: now, source: "manual", refId: null });
     return next;
   });
 }
@@ -304,6 +391,10 @@ export async function addLedgerFromOrder(db: DukaanDB, orderId: string): Promise
   return db.transaction("rw", db.orders, db.customers, db.ledgerEntries, db.products, async () => {
     const order = await db.orders.get(orderId);
     if (!order) throw new Error("order_not_found");
+    if (order.ledgerEntryId) {
+      const existing = await db.ledgerEntries.get(order.ledgerEntryId);
+      if (existing && !existing.deletedAt) throw new Error("order_already_in_khata");
+    }
     const products = await db.products.toArray();
     const total = orderTotalPaise(order, products);
     if (total == null || total <= 0) throw new Error("order_unpriced");
@@ -328,8 +419,79 @@ export async function addLedgerFromOrder(db: DukaanDB, orderId: string): Promise
     });
     const newBalance = customer.balance + total;
     await db.customers.update(customer.id, { balance: newBalance, updatedAt: now });
-    await db.orders.update(orderId, { customerId: customer.id, updatedAt: now });
+    await db.orders.update(orderId, { customerId: customer.id, ledgerEntryId: ledgerId, updatedAt: now });
     return { customerId: customer.id, newBalance, ledgerId };
+  });
+}
+
+// ---------- CSV import ----------
+
+export interface StockImportResult {
+  created: number;
+  updated: number;
+  errors: StockCsvError[];
+}
+
+/** Upsert products from a stock CSV. Matched rows update stock/price/reorder/aliases (unit is kept); suppliers are found or created by name. */
+export async function importStockCsv(db: DukaanDB, text: string): Promise<StockImportResult> {
+  const { rows, errors } = parseStockCsv(text);
+  return db.transaction("rw", db.products, db.suppliers, db.stockEvents, async () => {
+    const now = nowIso();
+    const products = await db.products.toArray();
+    const suppliers = await db.suppliers.toArray();
+    const supplierId = async (name: string | null): Promise<string | null> => {
+      if (!name) return null;
+      const key = name.trim().toLowerCase();
+      let s = suppliers.find((x) => x.name.trim().toLowerCase() === key);
+      if (!s) {
+        s = { id: newId(), name: name.trim(), language: "hi-IN", createdAt: now } satisfies Supplier;
+        await db.suppliers.add(s);
+        suppliers.push(s);
+      }
+      return s.id;
+    };
+    const log = async (productId: string, delta: number) => {
+      if (delta !== 0) await db.stockEvents.add({ id: newId(), productId, op: "set", delta: round3(delta), transcript: null, createdAt: now, source: "import", refId: null });
+    };
+    let created = 0;
+    let updated = 0;
+    for (const { row, productId } of planStockImport(rows, products)) {
+      const existing = productId ? await db.products.get(productId) : undefined;
+      const sup = await supplierId(row.supplierName);
+      if (existing) {
+        const stockQty = row.stockQty ?? existing.stockQty;
+        await db.products.update(existing.id, {
+          stockQty,
+          pricePaise: row.pricePaise ?? existing.pricePaise,
+          reorderLevel: row.reorderLevel ?? existing.reorderLevel,
+          supplierId: sup ?? existing.supplierId,
+          aliases: [...new Set([...existing.aliases, ...row.aliases])],
+          emoji: row.emoji ?? existing.emoji,
+          updatedAt: now,
+        });
+        await log(existing.id, stockQty - existing.stockQty);
+        updated++;
+      } else {
+        const p: Product = {
+          id: newId(),
+          name: row.name,
+          aliases: row.aliases,
+          unit: row.unit,
+          stockQty: row.stockQty ?? 0,
+          reorderLevel: row.reorderLevel ?? 2,
+          pricePaise: row.pricePaise,
+          supplierId: sup,
+          emoji: row.emoji ?? "📦",
+          createdAt: now,
+          updatedAt: now,
+        };
+        await db.products.add(p);
+        products.push(p); // a later duplicate row in the same file updates this one
+        await log(p.id, p.stockQty);
+        created++;
+      }
+    }
+    return { created, updated, errors };
   });
 }
 

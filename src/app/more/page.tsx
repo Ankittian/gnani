@@ -12,6 +12,7 @@ export default function MorePage() {
         <PageHeader title={t("navMore")} />
       </Rise>
       <Rise className="grid grid-cols-2 gap-3 px-4">
+        <ModuleTile href="/memory" icon="memory" tone="brand" label={t("memoryPage")} />
         <ModuleTile href="/orders" icon="orders" tone="saffron" label={t("modOrders")} />
         <ModuleTile href="/hisaab" icon="hisaab" tone="leaf" label={t("modHisaab")} />
         <ModuleTile href="/settings" icon="settings" tone="muted" label={t("settings")} />

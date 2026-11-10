@@ -13,7 +13,18 @@ const UnderstandRequestZ = z.object({
   mode: z.enum(["command", "order"]),
   context: z.object({
     customers: z
-      .array(z.object({ id: z.string(), name: z.string(), aliases: z.array(z.string()), balance: z.number() }))
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          aliases: z.array(z.string()),
+          balance: z.number(),
+          // shop memory (optional)
+          usualItems: z.array(z.string().max(120)).max(5).optional(),
+          lastItems: z.string().max(400).nullable().optional(),
+          daysSincePayment: z.number().nullable().optional(),
+        }),
+      )
       .max(1000),
     products: z
       .array(
@@ -23,10 +34,13 @@ const UnderstandRequestZ = z.object({
           aliases: z.array(z.string()),
           unit: z.enum(UNITS),
           pricePaise: z.number().nullable(),
+          stockQty: z.number().optional(),
+          reorderLevel: z.number().optional(),
         }),
       )
       .max(2000),
     suppliers: z.array(z.object({ id: z.string(), name: z.string() })).max(200),
+    recent: z.array(z.string().max(400)).max(10).optional(),
   }),
 });
 

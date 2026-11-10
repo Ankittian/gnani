@@ -194,3 +194,13 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⚠️ blocked · ✂�
 - [x] 10.4 (partial) keys absent from client bundle + not tracked by git; ESLint 0 problems. Full js-security-audit still to run before deploy
 - [ ] 10.5 deploy to Vercel (needs user login)
 - [ ] 10.6 README write-up
+
+## 2026-11-10 — Connected flows + shop memory (uncommitted on `feature/i18n-and-animations`)
+- [x] Udhaar / cash-sale items reduce stock automatically (`drawsForItems`, unit-aware g↔kg, ml↔l, dozen↔piece); undo restores; every movement stores `source` + `refId`
+- [x] Delivered order reduces stock exactly once (`stockDeducted`); "Add to khata" is idempotent (`ledgerEntryId`)
+- [x] Stock CSV import (sample download, "try with sample", preview new/update, per-line errors) + CSV export; sample at `public/samples/stock-sample.csv`
+- [x] Shop memory (`src/lib/domain/memory.ts`): customer habits, product velocity/days-left/top buyers, unified timeline, insights
+- [x] LLM context carries memory (recent events, usual/last basket, live stock) → "usne", "same as last time", "kitna bacha" work; `/api/understand` schema accepts it (it was silently stripping stockQty before)
+- [x] UI: Home "Dost remembers" + linked activity, `/memory` timeline with search, `/stock/[id]` product memory, customer habits + "Same as last time", confirm card previews khata & stock after
+- [x] 200 tests, lint, build green; `node scripts/qa-connected.mjs` (QA_BASE=prod server) all checks pass
+- Note: `next dev` on this machine loops Fast Refresh with no file changes — QA against `next build && next start`

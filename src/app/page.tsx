@@ -4,42 +4,35 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useTranslations } from "next-intl";
-import { IconTile, Settings, type IconKey } from "@/components/common/icons";
-import { AnimatedNumber, PressLink, Rise, RiseItem, Stagger, StaggerList, press } from "@/components/common/motion";
-import { Avatar, ModuleTile, useTimeAgo, useUnit } from "@/components/common/ui";
+import { Settings } from "@/components/common/icons";
+import { AnimatedNumber, PressLink, Rise, Stagger, press } from "@/components/common/motion";
+import { Avatar, ModuleTile } from "@/components/common/ui";
+import { InsightsCard } from "@/components/memory/InsightsCard";
+import { TimelineRow } from "@/components/memory/TimelineRow";
 import { useShop } from "@/hooks/useShop";
 import { getDb } from "@/lib/db/schema";
+import { buildTimeline, shopInsights } from "@/lib/domain/memory";
 import { formatINR } from "@/lib/domain/money";
 import { isLow } from "@/lib/domain/stock";
 import { summarizeDay, weekSales } from "@/lib/domain/summary";
 import { Sparkline } from "@/components/charts/charts";
 import { LANGUAGES } from "@/lib/i18n/languages";
 
-interface Activity {
-  id: string;
-  at: string;
-  icon: IconKey;
-  emoji?: string;
-  title: string;
-  amount?: string;
-  tone?: "chili" | "leaf" | "muted";
-}
-
 export default function HomePage() {
   const { shop, lang } = useShop();
   const t = useTranslations();
-  const unitLabel = useUnit();
-  const timeAgo = useTimeAgo();
 
   const data = useLiveQuery(async () => {
     const db = getDb();
+    // 14 days: enough history for sales velocity ("runs out in 2 days") and the activity feed.
+    const since = new Date(Date.now() - 14 * 864e5).toISOString();
     const [customers, ledger, sales, products, orders, stockEvents] = await Promise.all([
       db.customers.toArray(),
-      db.ledgerEntries.where("createdAt").aboveOrEqual(new Date(Date.now() - 7 * 864e5).toISOString()).toArray(),
-      db.sales.where("createdAt").aboveOrEqual(new Date(Date.now() - 7 * 864e5).toISOString()).toArray(),
+      db.ledgerEntries.where("createdAt").aboveOrEqual(since).toArray(),
+      db.sales.where("createdAt").aboveOrEqual(since).toArray(),
       db.products.toArray(),
       db.orders.toArray(),
-      db.stockEvents.orderBy("createdAt").reverse().limit(5).toArray(),
+      db.stockEvents.where("createdAt").aboveOrEqual(since).toArray(),
     ]);
     return { customers, ledger, sales, products, orders, stockEvents };
   }, []);
@@ -48,31 +41,8 @@ export default function HomePage() {
   const sales7 = useMemo(() => (data ? weekSales(data.sales, new Date()) : []), [data]);
   const lowCount = useMemo(() => data?.products.filter(isLow).length ?? 0, [data]);
   const newOrders = useMemo(() => data?.orders.filter((o) => o.status === "new").length ?? 0, [data]);
-
-  const activity = useMemo<Activity[]>(() => {
-    if (!data) return [];
-    const byId = new Map(data.customers.map((c) => [c.id, c.name]));
-    const prod = new Map(data.products.map((p) => [p.id, p]));
-    const items: Activity[] = [
-      ...data.ledger
-        .filter((e) => !e.deletedAt)
-        .map((e) => ({
-          id: e.id,
-          at: e.createdAt,
-          icon: (e.type === "credit" ? "credit" : "collected") as IconKey,
-          title: `${byId.get(e.customerId) ?? "?"} · ${e.type === "credit" ? t("ledgerCredit") : t("ledgerPayment")}`,
-          amount: formatINR(e.amount),
-          tone: (e.type === "credit" ? "chili" : "leaf") as Activity["tone"],
-        })),
-      ...data.sales.filter((s) => !s.deletedAt).map((s) => ({ id: s.id, at: s.createdAt, icon: "sales" as IconKey, title: t("cashSale"), amount: formatINR(s.amount), tone: "leaf" as const })),
-      ...data.stockEvents.map((s) => {
-        const p = prod.get(s.productId);
-        const what = s.op === "out" ? t("soldOut") : s.op === "add" ? `+${s.delta}` : `${p?.stockQty ?? ""} ${p ? unitLabel(p.unit) : ""}`;
-        return { id: s.id, at: s.createdAt, icon: "stock" as IconKey, emoji: p?.emoji, title: `${p?.name ?? t("modStock")} · ${what}`, tone: "muted" as const };
-      }),
-    ];
-    return items.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 6);
-  }, [data, t, unitLabel]);
+  const insights = useMemo(() => (data ? shopInsights(data, new Date(), 3) : []), [data]);
+  const activity = useMemo(() => (data ? buildTimeline(data).slice(0, 6) : []), [data]);
 
   if (!shop) return null;
 
@@ -123,6 +93,11 @@ export default function HomePage() {
         </section>
       </Rise>
 
+      {/* Memory: what Dost noticed across khata, stock and orders */}
+      <Rise>
+        <InsightsCard insights={insights} />
+      </Rise>
+
       {/* Modules */}
       <Rise>
         <section className="mt-4 grid grid-cols-2 gap-3">
@@ -136,28 +111,20 @@ export default function HomePage() {
       {/* Recent activity */}
       <Rise>
         <section className="mt-6">
-          <h2 className="mb-3 text-base font-semibold">{t("recent")}</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-semibold">{t("recent")}</h2>
+            <Link href="/memory" className="text-xs font-semibold text-muted hover:text-ink">
+              {t("seeAll")}
+            </Link>
+          </div>
           {activity.length === 0 ? (
             <p className="rounded-card border border-line bg-card px-4 py-6 text-center text-sm text-muted">{t("noActivity")}</p>
           ) : (
-            <StaggerList className="divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-card">
-              {activity.map((a) => (
-                <RiseItem key={a.id} className="flex items-center gap-3 px-4 py-3">
-                  {a.emoji ? (
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-line/70 text-2xl" aria-hidden>
-                      {a.emoji}
-                    </span>
-                  ) : (
-                    <IconTile icon={a.icon} tone={a.tone ?? "muted"} />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold">{a.title}</p>
-                    <p className="text-xs text-muted">{timeAgo(a.at)}</p>
-                  </div>
-                  {a.amount && <span className={`tabular font-semibold ${a.tone === "chili" ? "text-chili" : "text-leaf"}`}>{a.amount}</span>}
-                </RiseItem>
+            <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-card shadow-card">
+              {activity.map((e) => (
+                <TimelineRow key={e.id} e={e} />
               ))}
-            </StaggerList>
+            </ul>
           )}
         </section>
       </Rise>

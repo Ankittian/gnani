@@ -5,12 +5,15 @@ import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
-import { Minus, Plus, ShoppingCart } from "@/components/common/icons";
+import { Download, Minus, Plus, ShoppingCart, Upload } from "@/components/common/icons";
 import { Rise, Stagger, press } from "@/components/common/motion";
 import { EmptyState, PageHeader, useUnit } from "@/components/common/ui";
+import { downloadText, ImportCsvSheet } from "@/components/stock/ImportCsvSheet";
 import { useVoice } from "@/components/voice/VoiceProvider";
+import { useShop } from "@/hooks/useShop";
 import { adjustStock } from "@/lib/db/repo";
 import { getDb } from "@/lib/db/schema";
+import { stockCsvFromProducts } from "@/lib/domain/csv";
 import { formatINR } from "@/lib/domain/money";
 import { isLow } from "@/lib/domain/stock";
 import type { Product } from "@/lib/types";
@@ -37,8 +40,16 @@ export default function StockPage() {
   const t = useTranslations();
   const unitLabel = useUnit();
   const voice = useVoice();
+  const { shop } = useShop();
   const [filter, setFilter] = useState<Filter>("all");
+  const [importing, setImporting] = useState(false);
   const products = useLiveQuery(() => getDb().products.toArray(), []);
+
+  const exportCsv = async () => {
+    const db = getDb();
+    const [ps, sups] = await Promise.all([db.products.toArray(), db.suppliers.toArray()]);
+    downloadText(`stock-${new Date().toISOString().slice(0, 10)}.csv`, stockCsvFromProducts(ps, sups));
+  };
 
   const counts = useMemo(() => {
     const ps = products ?? [];
@@ -100,6 +111,27 @@ export default function StockPage() {
         ))}
       </Rise>
 
+      <Rise className="mx-4 mt-3 grid grid-cols-2 gap-2">
+        <motion.button
+          type="button"
+          {...press}
+          onClick={() => setImporting(true)}
+          data-testid="import-csv"
+          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-card text-sm font-semibold shadow-card"
+        >
+          <Upload className="h-4 w-4" /> {t("importCsv")}
+        </motion.button>
+        <motion.button
+          type="button"
+          {...press}
+          onClick={() => void exportCsv()}
+          disabled={!products?.length}
+          className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-card text-sm font-semibold shadow-card disabled:opacity-50"
+        >
+          <Download className="h-4 w-4" /> {t("exportCsv")}
+        </motion.button>
+      </Rise>
+
       <Rise>
         <button
           type="button"
@@ -110,7 +142,19 @@ export default function StockPage() {
         </button>
       </Rise>
 
-      {products && list.length === 0 ? (
+      {products && products.length === 0 ? (
+        <EmptyState
+          icon="upload"
+          tone="sky"
+          title={t("csvTitle")}
+          hint={t("stockHint")}
+          action={
+            <button type="button" onClick={() => setImporting(true)} className="min-h-12 rounded-full bg-brand px-5 font-semibold text-brand-ink shadow-card">
+              {t("importCsv")}
+            </button>
+          }
+        />
+      ) : products && list.length === 0 ? (
         <EmptyState icon="celebrate" tone="leaf" title={t("stockAllGood")} />
       ) : (
         <ul className="mx-4 mt-3 grid grid-cols-2 gap-3">
@@ -124,18 +168,20 @@ export default function StockPage() {
                 exit={{ opacity: 0, scale: 0.92 }}
                 className={`rounded-card border bg-card p-3 shadow-card ${p.stockQty === 0 ? "border-chili/50" : "border-line"}`}
               >
-                <div className="flex items-start justify-between">
-                  <span className="text-3xl" aria-hidden>
-                    {p.emoji}
-                  </span>
-                  {p.stockQty === 0 ? (
-                    <span className="rounded-full bg-chili-soft px-2 py-0.5 text-xs font-semibold text-chili">{t("soldOut")}</span>
-                  ) : isLow(p) ? (
-                    <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-ink">{t("lowBadge")}</span>
-                  ) : null}
-                </div>
-                <p className="mt-1 truncate font-semibold">{p.name}</p>
-                <p className="text-xs text-muted">{p.pricePaise != null ? `${formatINR(p.pricePaise)} / ${unitLabel(p.unit)}` : unitLabel(p.unit)}</p>
+                <Link href={`/stock/${p.id}`} aria-label={t("viewItem", { name: p.name })} className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+                  <div className="flex items-start justify-between">
+                    <span className="text-3xl" aria-hidden>
+                      {p.emoji}
+                    </span>
+                    {p.stockQty === 0 ? (
+                      <span className="rounded-full bg-chili-soft px-2 py-0.5 text-xs font-semibold text-chili">{t("soldOut")}</span>
+                    ) : isLow(p) ? (
+                      <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-ink">{t("lowBadge")}</span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 truncate font-semibold">{p.name}</p>
+                  <p className="text-xs text-muted">{p.pricePaise != null ? `${formatINR(p.pricePaise)} / ${unitLabel(p.unit)}` : unitLabel(p.unit)}</p>
+                </Link>
                 <div className="mt-2">
                   <StockBar p={p} />
                 </div>
@@ -167,6 +213,8 @@ export default function StockPage() {
           </AnimatePresence>
         </ul>
       )}
+
+      <AnimatePresence>{importing && <ImportCsvSheet soundsOn={shop?.soundsOn ?? true} onClose={() => setImporting(false)} />}</AnimatePresence>
     </Stagger>
   );
 }

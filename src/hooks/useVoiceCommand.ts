@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import * as api from "@/lib/api/client";
 import { encodeWav } from "@/lib/audio/wav";
 import { getDb } from "@/lib/db/schema";
-import { buildShopContext, commitAction, recordUsage, undoCommit, type CommitResult } from "@/lib/db/repo";
+import { buildMemoryContext, buildShopContext, commitAction, recordUsage, undoCommit, type CommitResult } from "@/lib/db/repo";
 import { buildKeyterms } from "@/lib/domain/keyterms";
 import { matchCustomer, matchProduct } from "@/lib/domain/match";
 import { formatINR } from "@/lib/domain/money";
@@ -14,7 +14,7 @@ import { actionProblem, MUTATING_INTENTS, type Action } from "@/lib/llm/schema";
 import { celebrate, playTing, vibrate } from "@/lib/feedback";
 import type { LangCode } from "@/lib/i18n/languages";
 import { errorKey } from "@/lib/i18n/errors";
-import type { Shop, ShopContext } from "@/lib/types";
+import type { Shop } from "@/lib/types";
 import { canAutoConfirm, fillBalance, languageHintsFor, sttFormatFor } from "@/lib/voice/pipeline";
 import { useRecorder, type RecordingResult } from "@/hooks/useRecorder";
 import { useSpeak } from "@/hooks/useSpeak";
@@ -55,17 +55,6 @@ const INITIAL: VoiceState = {
   error: null,
 };
 
-async function contextWithStock(): Promise<ShopContext> {
-  const db = getDb();
-  const ctx = await buildShopContext(db);
-  const products = await db.products.toArray();
-  const qty = new Map(products.map((p) => [p.id, p]));
-  // Extra fields (stockQty, reorderLevel) let the LLM answer "kitna bacha hai?" without another round-trip.
-  return {
-    ...ctx,
-    products: ctx.products.map((p) => ({ ...p, stockQty: qty.get(p.id)?.stockQty ?? null, reorderLevel: qty.get(p.id)?.reorderLevel ?? null })),
-  } as ShopContext;
-}
 
 export function useVoiceCommand(shop: Shop | null | undefined) {
   const [state, setState] = useState<VoiceState>(INITIAL);
@@ -160,7 +149,8 @@ export function useVoiceCommand(shop: Shop | null | undefined) {
       lastTranscript.current = text;
       patch({ phase: "understanding", transcript: text, detectedLanguage: detected });
       try {
-        const context = await contextWithStock();
+        // Shop memory (recent events, customer habits, live stock) lets "usne", "same as last time" and "kitna bacha" work.
+        const context = await buildMemoryContext(getDb());
         const action = await api.understand({ transcript: text, language: detected ?? shop.language, mode: "command", context });
         void recordUsage(getDb(), { llmCalls: 1 });
         await routeAction(action);

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AnimatePresence, motion } from "motion/react";
@@ -25,7 +26,9 @@ export default function OrderPage() {
   const data = useLiveQuery(async () => {
     const db = getDb();
     const [order, products] = await Promise.all([db.orders.get(id), db.products.toArray()]);
-    return { order: order ?? null, products };
+    const customer = order?.customerId ? await db.customers.get(order.customerId) : undefined;
+    const entry = order?.ledgerEntryId ? await db.ledgerEntries.get(order.ledgerEntryId) : undefined;
+    return { order: order ?? null, products, customer: customer ?? null, inKhata: !!entry && !entry.deletedAt };
   }, [id]);
 
   if (data === undefined || !shop) return null;
@@ -70,6 +73,17 @@ export default function OrderPage() {
         </AnimatePresence>
         {total != null && <span className="tabular text-2xl font-semibold">{formatINR(total)}</span>}
       </Rise>
+
+      {data.customer && (
+        <Rise className="mx-4 mt-3">
+          <Link href={`/khata/${data.customer.id}`} className="flex items-center justify-between rounded-2xl border border-line bg-card px-4 py-3 shadow-card">
+            <span className="font-semibold">
+              {t("openKhata")} · {data.customer.name}
+            </span>
+            <span className={`tabular font-semibold ${data.customer.balance > 0 ? "text-chili" : "text-leaf"}`}>{formatINR(data.customer.balance)}</span>
+          </Link>
+        </Rise>
+      )}
 
       <Rise>
         <Card className="mx-4 mt-3">
@@ -121,7 +135,13 @@ export default function OrderPage() {
           </motion.button>
         )}
         {o.status === "delivered" && o.customerId == null && total != null && <p className="text-center text-xs text-muted">{t("notInKhata")}</p>}
-        {o.status === "delivered" && total != null && (
+        {o.stockDeducted && <p className="text-center text-xs text-muted">{t("stockReducedNote")}</p>}
+        {o.status === "delivered" && data.inKhata && (
+          <p className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-leaf-soft text-lg font-semibold text-leaf">
+            <Check className="h-5 w-5" strokeWidth={3} /> {t("inKhata")}
+          </p>
+        )}
+        {o.status === "delivered" && total != null && !data.inKhata && (
           <motion.button
             type="button"
             {...press}
@@ -129,8 +149,8 @@ export default function OrderPage() {
               try {
                 await addLedgerFromOrder(getDb(), o.id);
                 toast.success(t("addedToKhata"));
-              } catch {
-                toast.error(t("addKhataFailed"));
+              } catch (e) {
+                toast.error(e instanceof Error && e.message === "order_already_in_khata" ? t("orderAlreadyInKhata") : t("addKhataFailed"));
               }
             }}
             className="min-h-14 rounded-2xl border border-line bg-card text-lg font-semibold"

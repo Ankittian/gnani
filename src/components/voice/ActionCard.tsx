@@ -1,13 +1,122 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
-import { Check, Minus, Plus, UserPlus, X } from "@/components/common/icons";
+import { Brain, Check, Minus, Plus, UserPlus, X } from "@/components/common/icons";
 import type { Action } from "@/lib/llm/schema";
+import { getDb } from "@/lib/db/schema";
+import { drawsForItems } from "@/lib/domain/inventory";
+import { matchCustomer } from "@/lib/domain/match";
+import { customerMemory } from "@/lib/domain/memory";
 import { formatINR } from "@/lib/domain/money";
 import { useUnit } from "@/components/common/ui";
 import { INTENT_META } from "@/lib/voice/pipeline";
+
+/**
+ * What confirming will do elsewhere in the shop — khata balance before → after, shelf stock before → after —
+ * plus the customer's usual items as one-tap additions. Read-only preview; the repo does the real work.
+ */
+function ConnectedEffects({ action, onChange }: { action: Action; onChange: (a: Action) => void }) {
+  const t = useTranslations();
+  const unitLabel = useUnit();
+  const base = useLiveQuery(async () => {
+    const db = getDb();
+    const [products, customers] = await Promise.all([db.products.toArray(), db.customers.toArray()]);
+    return { products, customers: customers.filter((c) => !c.deletedAt) };
+  }, []);
+  const customer = useMemo(() => {
+    if (!base || !action.customer) return null;
+    const byId = action.customer.id ? base.customers.find((c) => c.id === action.customer!.id) : undefined;
+    return byId ?? base.customers.find((c) => c.id === matchCustomer(action.customer!.name, base.customers).best?.id) ?? null;
+  }, [base, action.customer]);
+  const history = useLiveQuery(
+    async () => {
+      if (!customer) return null;
+      const db = getDb();
+      const [ledger, orders] = await Promise.all([db.ledgerEntries.where("customerId").equals(customer.id).toArray(), db.orders.toArray()]);
+      return customerMemory(customer.id, ledger, orders, new Date());
+    },
+    [customer?.id],
+  );
+  if (!base) return null;
+
+  const sells = action.intent === "add_credit" || action.intent === "cash_sale";
+  const byId = new Map(base.products.map((p) => [p.id, p]));
+  const draws = sells ? drawsForItems(action.items, base.products) : [];
+  const amount = action.amountPaise ?? 0;
+  const balanceTo =
+    customer && amount > 0 ? (action.intent === "add_credit" ? customer.balance + amount : action.intent === "record_payment" ? customer.balance - amount : null) : null;
+  const inBasket = new Set(action.items.map((i) => i.productId).filter(Boolean));
+  const suggestions =
+    action.intent === "add_credit" && history ? history.usualItems.filter((u) => u.productId && !inBasket.has(u.productId) && byId.has(u.productId)).slice(0, 4) : [];
+
+  const addUsual = (productId: string) => {
+    const p = byId.get(productId);
+    if (!p) return;
+    onChange({
+      ...action,
+      items: [...action.items, { name: p.name, qty: 1, unit: p.unit, productId: p.id, pricePaise: p.pricePaise }],
+      amountPaise: p.pricePaise != null ? (action.amountPaise ?? 0) + p.pricePaise : action.amountPaise,
+    });
+  };
+  const fmt = (n: number) => Math.round(n * 100) / 100;
+
+  if (balanceTo == null && draws.length === 0 && suggestions.length === 0) return null;
+  return (
+    <div className="mb-3 space-y-2 rounded-2xl bg-bg px-3 py-2.5 text-sm" data-testid="connected-effects">
+      {balanceTo != null && customer && (
+        <p className="flex items-center justify-between gap-2">
+          <span className="text-muted">{t("khataAfter")}</span>
+          <span className="tabular font-semibold">
+            {formatINR(customer.balance)} → <span className={balanceTo > 0 ? "text-chili" : "text-leaf"}>{formatINR(balanceTo)}</span>
+          </span>
+        </p>
+      )}
+      {draws.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">{t("stockAfter")}</p>
+          <ul className="mt-1 space-y-0.5">
+            {draws.map((d) => {
+              const p = byId.get(d.productId)!;
+              const after = Math.max(0, fmt(p.stockQty - d.qty));
+              return (
+                <li key={d.productId} className="flex items-center justify-between gap-2">
+                  <span className="truncate">
+                    {p.emoji} {p.name}
+                  </span>
+                  <span className={`tabular shrink-0 font-semibold ${after <= p.reorderLevel ? "text-chili" : ""}`}>
+                    {fmt(p.stockQty)} → {after} {unitLabel(p.unit)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      {suggestions.length > 0 && (
+        <div>
+          <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted">
+            <Brain className="h-3.5 w-3.5" /> {t("tapToAdd")}
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {suggestions.map((u) => (
+              <button
+                key={u.productId}
+                type="button"
+                onClick={() => addUsual(u.productId!)}
+                className="inline-flex min-h-9 items-center gap-1 rounded-full border border-dashed border-brand px-3 text-sm font-semibold text-brand-ink"
+              >
+                <Plus className="h-3.5 w-3.5" /> {byId.get(u.productId!)?.emoji} {u.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface ActionCardProps {
   action: Action;
@@ -172,6 +281,8 @@ export function ActionCard({ action, problem, autoConfirm, busy, confirmLabel, c
           ))}
         </ul>
       )}
+
+      <ConnectedEffects action={action} onChange={onChange} />
 
       {action.notes && <p className="mb-3 rounded-2xl bg-bg px-3 py-2 text-sm text-muted">{action.notes}</p>}
 

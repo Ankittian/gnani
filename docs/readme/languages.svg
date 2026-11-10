@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 72" width="1200" height="72" role="img" aria-labelledby="t">
+  <title id="t">Languages: Hindi, English, Kannada, Tamil, Telugu, Malayalam, Marathi, Bengali, Gujarati, Punjabi, Hinglish</title>
+  <defs>
+    <clipPath id="c"><rect width="1200" height="72" rx="20"/></clipPath>
+    <linearGradient id="fadeL" x1="0" x2="1"><stop offset="0" stop-color="#f5f2ea"/><stop offset="1" stop-color="#f5f2ea" stop-opacity="0"/></linearGradient>
+    <linearGradient id="fadeR" x1="0" x2="1"><stop offset="0" stop-color="#f5f2ea" stop-opacity="0"/><stop offset="1" stop-color="#f5f2ea"/></linearGradient>
+    <style>
+      text { font-family: "Nirmala UI", "Noto Sans", "Segoe UI", Helvetica, Arial, sans-serif; }
+      .track { animation: scroll 26s linear infinite; }
+      @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-1320px); } }
+    </style>
+    <g id="set" font-size="18" font-weight="600" text-anchor="middle">
+      <rect x="4" y="16" width="112" height="40" rx="20" fill="#e1eee8"/><text x="60" y="43" fill="#14594a">हिन्दी</text>
+      <rect x="124" y="16" width="112" height="40" rx="20" fill="#f8ebd0"/><text x="180" y="43" fill="#a96a12">English</text>
+      <rect x="244" y="16" width="112" height="40" rx="20" fill="#e1eee8"/><text x="300" y="43" fill="#14594a">ಕನ್ನಡ</text>
+      <rect x="364" y="16" width="112" height="40" rx="20" fill="#f8ebd0"/><text x="420" y="43" fill="#a96a12">தமிழ்</text>
+      <rect x="484" y="16" width="112" height="40" rx="20" fill="#e1eee8"/><text x="540" y="43" fill="#14594a">తెలుగు</text>
+      <rect x="604" y="16" width="112" height="40" rx="20" fill="#f8ebd0"/><text x="660" y="43" fill="#a96a12">മലയാളം</text>
+      <rect x="724" y="16" width="112" height="40" rx="20" fill="#e1eee8"/><text x="780" y="43" fill="#14594a">मराठी</text>
+      <rect x="844" y="16" width="112" height="40" rx="20" fill="#f8ebd0"/><text x="900" y="43" fill="#a96a12">বাংলা</text>
+      <rect x="964" y="16" width="112" height="40" rx="20" fill="#e1eee8"/><text x="1020" y="43" fill="#14594a">ગુજરાતી</text>
+      <rect x="1084" y="16" width="112" height="40" rx="20" fill="#f8ebd0"/><text x="1140" y="43" fill="#a96a12">ਪੰਜਾਬੀ</text>
+      <rect x="1204" y="16" width="112" height="40" rx="20" fill="#14594a"/><text x="1260" y="43" fill="#fdfbf6">Hinglish</text>
+    </g>
+  </defs>
+
+  <g clip-path="url(#c)">
+    <rect width="1200" height="72" fill="#f5f2ea"/>
+    <g class="track">
+      <use href="#set"/>
+      <use href="#set" x="1320"/>
+    </g>
+    <rect width="80" height="72" fill="url(#fadeL)"/>
+    <rect x="1120" width="80" height="72" fill="url(#fadeR)"/>
+  </g>
+</svg>

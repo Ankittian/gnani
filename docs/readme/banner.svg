@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-labelledby="t d">
+  <title id="t">Dukaan Dost</title>
+  <desc id="d">Voice-first assistant for kirana stores. Speak in any of 10 Indian languages.</desc>
+  <defs>
+    <radialGradient id="orb" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="0.4" stop-color="#fbbf24"/>
+      <stop offset="0.75" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </radialGradient>
+    <pattern id="ledger" width="1200" height="30" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="29.5" x2="1200" y2="29.5" stroke="#e4dfd2" stroke-width="1"/>
+    </pattern>
+    <clipPath id="card"><rect width="1200" height="420" rx="28"/></clipPath>
+    <style>
+      text { font-family: "Segoe UI", "Noto Sans", "Nirmala UI", Helvetica, Arial, sans-serif; }
+      .float { animation: float 4.5s ease-in-out infinite; }
+      @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
+      @keyframes blink { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+      .g { opacity: 0; animation: greet 27.5s infinite; }
+      @keyframes greet {
+        0% { opacity: 0; transform: translateY(10px); }
+        1.6% { opacity: 1; transform: translateY(0); }
+        7.6% { opacity: 1; transform: translateY(0); }
+        9.1% { opacity: 0; transform: translateY(-10px); }
+        100% { opacity: 0; }
+      }
+      .bar { transform-box: fill-box; transform-origin: center; animation: wave 1.1s ease-in-out infinite; }
+      @keyframes wave { 0%,100% { transform: scaleY(0.25); } 50% { transform: scaleY(1); } }
+      .draw { stroke-dasharray: 420; stroke-dashoffset: 420; animation: draw 2.2s ease-out forwards; }
+      @keyframes draw { to { stroke-dashoffset: 0; } }
+      .rise { opacity: 0; animation: rise 0.9s ease-out forwards; }
+      @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <!-- ledger paper -->
+    <rect width="1200" height="420" fill="#f5f2ea"/>
+    <rect width="1200" height="420" fill="url(#ledger)"/>
+    <line x1="96" y1="0" x2="96" y2="420" stroke="#b93a2b" stroke-opacity="0.28" stroke-width="2"/>
+    <line x1="102" y1="0" x2="102" y2="420" stroke="#b93a2b" stroke-opacity="0.18" stroke-width="1"/>
+    <!-- turmeric glow -->
+    <circle cx="1120" cy="-40" r="220" fill="#fbbf24" opacity="0.14"/>
+    <circle cx="1180" cy="440" r="160" fill="#14594a" opacity="0.08"/>
+  </g>
+
+  <!-- listening rings -->
+  <g fill="none" stroke="#14594a" stroke-width="3">
+    <circle cx="225" cy="205" r="100" opacity="0">
+      <animate attributeName="r" values="100;170" dur="2.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.45;0" dur="2.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="225" cy="205" r="100" opacity="0">
+      <animate attributeName="r" values="100;170" dur="2.6s" begin="1.3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.45;0" dur="2.6s" begin="1.3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- the Dost orb -->
+  <g class="float">
+    <g transform="translate(117.5 97.5) scale(0.42)">
+      <circle cx="256" cy="256" r="236" fill="url(#orb)"/>
+      <circle cx="140" cy="300" r="34" fill="#fb7185" opacity="0.35"/>
+      <circle cx="372" cy="300" r="34" fill="#fb7185" opacity="0.35"/>
+      <g class="eyes">
+        <ellipse cx="184" cy="226" rx="26" ry="32" fill="#7c2d12"/>
+        <ellipse cx="328" cy="226" rx="26" ry="32" fill="#7c2d12"/>
+        <circle cx="194" cy="214" r="8" fill="#fff"/>
+        <circle cx="338" cy="214" r="8" fill="#fff"/>
+      </g>
+      <path d="M204 320 q52 46 104 0" stroke="#7c2d12" stroke-width="22" fill="none" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- title -->
+  <g class="rise">
+    <text x="400" y="150" font-size="78" font-weight="800" fill="#14594a" letter-spacing="-1.5">Dukaan Dost</text>
+  </g>
+  <path class="draw" d="M404 168 C 520 160, 660 176, 812 164" fill="none" stroke="#e0a64a" stroke-width="6" stroke-linecap="round"/>
+  <g class="rise" style="animation-delay:0.25s">
+    <text x="402" y="212" font-size="23" fill="#16211c">Your shop's voice-first dost. Speak it, and it's in the khata.</text>
+  </g>
+
+  <!-- speech bubble with cycling greetings -->
+  <g class="rise" style="animation-delay:0.5s">
+    <path d="M430 248 h300 a30 30 0 0 1 0 60 h-300 a30 30 0 0 1 -30 -30 v0 a30 30 0 0 1 30 -30 z" fill="#14594a"/>
+    <path d="M412 296 l-22 18 l34 -6 z" fill="#14594a"/>
+    <g font-size="22" fill="#fdfbf6" text-anchor="middle">
+      <text class="g" x="580" y="287" style="animation-delay:0s">नमस्ते  ·  Hindi</text>
+      <text class="g" x="580" y="287" style="animation-delay:2.5s">Kya haal, dost?  ·  Hinglish</text>
+      <text class="g" x="580" y="287" style="animation-delay:5s">ನಮಸ್ಕಾರ  ·  Kannada</text>
+      <text class="g" x="580" y="287" style="animation-delay:7.5s">வணக்கம்  ·  Tamil</text>
+      <text class="g" x="580" y="287" style="animation-delay:10s">నమస్కారం  ·  Telugu</text>
+      <text class="g" x="580" y="287" style="animation-delay:12.5s">നമസ്കാരം  ·  Malayalam</text>
+      <text class="g" x="580" y="287" style="animation-delay:15s">नमस्कार  ·  Marathi</text>
+      <text class="g" x="580" y="287" style="animation-delay:17.5s">নমস্কার  ·  Bengali</text>
+      <text class="g" x="580" y="287" style="animation-delay:20s">નમસ્તે  ·  Gujarati</text>
+      <text class="g" x="580" y="287" style="animation-delay:22.5s">ਸਤ ਸ੍ਰੀ ਅਕਾਲ  ·  Punjabi</text>
+      <text class="g" x="580" y="287" style="animation-delay:25s">Hello  ·  English</text>
+    </g>
+  </g>
+
+  <!-- live waveform -->
+  <g fill="#e0a64a">
+    <rect class="bar" x="790" y="256" width="9" height="44" rx="4.5" style="animation-delay:-0.10s"/>
+    <rect class="bar" x="807" y="246" width="9" height="64" rx="4.5" style="animation-delay:-0.25s"/>
+    <rect class="bar" x="824" y="238" width="9" height="80" rx="4.5" style="animation-delay:-0.40s"/>
+    <rect class="bar" x="841" y="252" width="9" height="52" rx="4.5" style="animation-delay:-0.55s"/>
+    <rect class="bar" x="858" y="232" width="9" height="92" rx="4.5" style="animation-delay:-0.70s"/>
+    <rect class="bar" x="875" y="244" width="9" height="68" rx="4.5" style="animation-delay:-0.85s"/>
+    <rect class="bar" x="892" y="256" width="9" height="44" rx="4.5" style="animation-delay:-1.00s"/>
+    <rect class="bar" x="909" y="240" width="9" height="76" rx="4.5" style="animation-delay:-0.15s"/>
+    <rect class="bar" x="926" y="230" width="9" height="96" rx="4.5" style="animation-delay:-0.30s"/>
+    <rect class="bar" x="943" y="248" width="9" height="60" rx="4.5" style="animation-delay:-0.45s"/>
+    <rect class="bar" x="960" y="236" width="9" height="84" rx="4.5" style="animation-delay:-0.60s"/>
+    <rect class="bar" x="977" y="252" width="9" height="52" rx="4.5" style="animation-delay:-0.75s"/>
+    <rect class="bar" x="994" y="242" width="9" height="72" rx="4.5" style="animation-delay:-0.90s"/>
+    <rect class="bar" x="1011" y="258" width="9" height="40" rx="4.5" style="animation-delay:-0.05s"/>
+    <rect class="bar" x="1028" y="246" width="9" height="64" rx="4.5" style="animation-delay:-0.20s"/>
+    <rect class="bar" x="1045" y="236" width="9" height="84" rx="4.5" style="animation-delay:-0.35s"/>
+    <rect class="bar" x="1062" y="250" width="9" height="56" rx="4.5" style="animation-delay:-0.50s"/>
+    <rect class="bar" x="1079" y="260" width="9" height="36" rx="4.5" style="animation-delay:-0.65s"/>
+    <rect class="bar" x="1096" y="252" width="9" height="52" rx="4.5" style="animation-delay:-0.80s"/>
+    <rect class="bar" x="1113" y="264" width="9" height="28" rx="4.5" style="animation-delay:-0.95s"/>
+  </g>
+
+  <!-- capability chips -->
+  <g class="rise" style="animation-delay:0.8s" font-size="15" font-weight="600" text-anchor="middle">
+    <rect x="400" y="340" width="222" height="34" rx="17" fill="#e1eee8"/>
+    <text x="511" y="362" fill="#14594a">10 languages + Hinglish</text>
+    <rect x="632" y="340" width="140" height="34" rx="17" fill="#f8ebd0"/>
+    <text x="702" y="362" fill="#a96a12">Prisma v3 STT</text>
+    <rect x="782" y="340" width="140" height="34" rx="17" fill="#e1eee8"/>
+    <text x="852" y="362" fill="#14594a">Timbre v3 TTS</text>
+    <rect x="932" y="340" width="124" height="34" rx="17" fill="#f8ebd0"/>
+    <text x="994" y="362" fill="#a96a12">Voice Clone</text>
+    <rect x="1066" y="340" width="90" height="34" rx="17" fill="#e1eee8"/>
+    <text x="1111" y="362" fill="#14594a">Gemini</text>
+  </g>
+</svg>

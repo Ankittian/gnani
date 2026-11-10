@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 68" width="380" height="68" role="img" aria-labelledby="t">
+  <title id="t">Try Dukaan Dost live</title>
+  <defs>
+    <clipPath id="pill"><rect x="4" y="4" width="372" height="60" rx="30"/></clipPath>
+    <linearGradient id="shine" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <style>
+      text { font-family: "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+      .sweep { animation: sweep 3.2s ease-in-out infinite; }
+      @keyframes sweep { 0% { transform: translateX(-140px); } 55%,100% { transform: translateX(460px); } }
+      .arrow { animation: nudge 1.4s ease-in-out infinite; }
+      @keyframes nudge { 0%,100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+    </style>
+  </defs>
+  <rect x="4" y="4" width="372" height="60" rx="30" fill="#14594a"/>
+  <g clip-path="url(#pill)">
+    <g class="sweep"><rect x="0" y="0" width="110" height="68" fill="url(#shine)" transform="skewX(-20)"/></g>
+  </g>
+  <!-- live dot -->
+  <circle cx="42" cy="34" r="7" fill="#e8776a"/>
+  <circle cx="42" cy="34" r="7" fill="none" stroke="#e8776a" stroke-width="2">
+    <animate attributeName="r" values="7;15" dur="1.6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.9;0" dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+  <text x="64" y="41" font-size="20" font-weight="700" fill="#f4faf7">Try Dukaan Dost live</text>
+  <g class="arrow">
+    <path d="M318 34 h26 m-10 -10 l10 10 l-10 10" fill="none" stroke="#e0a64a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

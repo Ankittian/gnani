@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 36" width="1200" height="36" role="presentation">
+  <defs>
+    <style>
+      .b { transform-box: fill-box; transform-origin: center; animation: w 1.6s ease-in-out infinite; }
+      @keyframes w { 0%,100% { transform: scaleY(0.2); } 50% { transform: scaleY(1); } }
+    </style>
+    <linearGradient id="fade" x1="0" x2="1">
+      <stop offset="0" stop-color="#14594a" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#14594a" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#14594a" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="m"><rect width="1200" height="36" fill="url(#fade)"/></mask>
+  </defs>
+  <g mask="url(#m)" fill="#14594a">
+    <rect class="b" x="300" y="4" width="6" height="28" rx="3" style="animation-delay:-0.0s"/>
+    <rect class="b" x="316" y="4" width="6" height="28" rx="3" style="animation-delay:-0.1s"/>
+    <rect class="b" x="332" y="4" width="6" height="28" rx="3" style="animation-delay:-0.2s"/>
+    <rect class="b" x="348" y="4" width="6" height="28" rx="3" style="animation-delay:-0.3s"/>
+    <rect class="b" x="364" y="4" width="6" height="28" rx="3" style="animation-delay:-0.4s"/>
+    <rect class="b" x="380" y="4" width="6" height="28" rx="3" style="animation-delay:-0.5s"/>
+    <rect class="b" x="396" y="4" width="6" height="28" rx="3" style="animation-delay:-0.6s"/>
+    <rect class="b" x="412" y="4" width="6" height="28" rx="3" style="animation-delay:-0.7s"/>
+    <rect class="b" x="428" y="4" width="6" height="28" rx="3" style="animation-delay:-0.8s"/>
+    <rect class="b" x="444" y="4" width="6" height="28" rx="3" style="animation-delay:-0.9s"/>
+    <rect class="b" x="460" y="4" width="6" height="28" rx="3" style="animation-delay:-1.0s"/>
+    <rect class="b" x="476" y="4" width="6" height="28" rx="3" style="animation-delay:-1.1s"/>
+    <rect class="b" x="492" y="4" width="6" height="28" rx="3" style="animation-delay:-1.2s"/>
+    <rect class="b" x="508" y="4" width="6" height="28" rx="3" style="animation-delay:-1.3s"/>
+    <rect class="b" x="524" y="4" width="6" height="28" rx="3" style="animation-delay:-1.4s"/>
+    <rect class="b" x="540" y="4" width="6" height="28" rx="3" style="animation-delay:-1.5s"/>
+    <rect class="b" x="556" y="4" width="6" height="28" rx="3" style="animation-delay:-0.0s"/>
+    <rect class="b" x="572" y="4" width="6" height="28" rx="3" style="animation-delay:-0.1s"/>
+    <rect class="b" x="588" y="4" width="6" height="28" rx="3" style="animation-delay:-0.2s"/>
+    <rect class="b" x="604" y="4" width="6" height="28" rx="3" style="animation-delay:-0.3s"/>
+    <rect class="b" x="620" y="4" width="6" height="28" rx="3" style="animation-delay:-0.4s"/>
+    <rect class="b" x="636" y="4" width="6" height="28" rx="3" style="animation-delay:-0.5s"/>
+    <rect class="b" x="652" y="4" width="6" height="28" rx="3" style="animation-delay:-0.6s"/>
+    <rect class="b" x="668" y="4" width="6" height="28" rx="3" style="animation-delay:-0.7s"/>
+    <rect class="b" x="684" y="4" width="6" height="28" rx="3" style="animation-delay:-0.8s"/>
+    <rect class="b" x="700" y="4" width="6" height="28" rx="3" style="animation-delay:-0.9s"/>
+    <rect class="b" x="716" y="4" width="6" height="28" rx="3" style="animation-delay:-1.0s"/>
+    <rect class="b" x="732" y="4" width="6" height="28" rx="3" style="animation-delay:-1.1s"/>
+    <rect class="b" x="748" y="4" width="6" height="28" rx="3" style="animation-delay:-1.2s"/>
+    <rect class="b" x="764" y="4" width="6" height="28" rx="3" style="animation-delay:-1.3s"/>
+    <rect class="b" x="780" y="4" width="6" height="28" rx="3" style="animation-delay:-1.4s"/>
+    <rect class="b" x="796" y="4" width="6" height="28" rx="3" style="animation-delay:-1.5s"/>
+    <rect class="b" x="812" y="4" width="6" height="28" rx="3" style="animation-delay:-0.0s"/>
+    <rect class="b" x="828" y="4" width="6" height="28" rx="3" style="animation-delay:-0.1s"/>
+    <rect class="b" x="844" y="4" width="6" height="28" rx="3" style="animation-delay:-0.2s"/>
+    <rect class="b" x="860" y="4" width="6" height="28" rx="3" style="animation-delay:-0.3s"/>
+    <rect class="b" x="876" y="4" width="6" height="28" rx="3" style="animation-delay:-0.4s"/>
+    <rect class="b" x="892" y="4" width="6" height="28" rx="3" style="animation-delay:-0.5s"/>
+  </g>
+</svg>
